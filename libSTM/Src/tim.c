@@ -38,7 +38,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "libUDB.h"
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim3;
@@ -91,9 +91,9 @@ void MX_TIM5_Init(void)
   TIM_IC_InitTypeDef sConfigIC;
 
   htim5.Instance = TIM5;
-  htim5.Init.Prescaler = 0;
+  htim5.Init.Prescaler = 84-1;                  //we have to slow down the base timer to 1MHz
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim5.Init.Period = 0xFFFF;
+  htim5.Init.Period = 0xFFFF;                   //we can count 65535 uSeg o 65.5mSeg.
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   HAL_TIM_Base_Init(&htim5);
 

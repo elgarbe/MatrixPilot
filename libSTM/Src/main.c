@@ -112,16 +112,16 @@ int main(void) // this becomes: int mcu_init(void)
   MX_USART2_UART_Init();
   MX_USART6_UART_Init();
 
-  /* USER CODE BEGIN 2 */
-	led_off(LED_RED);
-	led_off(LED_BLUE);
-	led_off(LED_GREEN);
-	led_off(LED_ORANGE);
-	led_on(LED_RED);
+    /* USER CODE BEGIN 2 */
+    led_off(LED_RED);
+    led_off(LED_BLUE);
+    led_off(LED_GREEN);
+    led_off(LED_ORANGE);
+    led_on(LED_RED);
 
-//	radioIn_init();     //elgarbe**************************************************
-//	start_pwm_outputs();
-	MPU6000_init16(&heartbeat); // initialise mpu in STM32 builds
+    radioIn_init();             //is this the correct place to call this function?
+    //	start_pwm_outputs();
+    MPU6000_init16(&heartbeat); // initialise mpu in STM32 builds
 
   /* USER CODE END 2 */
 
