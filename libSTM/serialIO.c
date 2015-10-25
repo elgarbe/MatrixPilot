@@ -160,6 +160,10 @@ static HAL_StatusTypeDef MP_UART_Receive_IT(UART_HandleTypeDef *huart)
 			udb_serial_callback_received_byte(rxchar);
 		}
 
+		if (huart->Instance == USART1)
+		{
+			udb_gps_callback_received_byte(rxchar);
+		}
 		if (huart->Instance == USART6)
 		{
 			udb_gps_callback_received_byte(rxchar);

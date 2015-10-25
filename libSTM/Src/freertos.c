@@ -235,12 +235,12 @@ void StartTaskIMU(void const * argument)
 
 /* USER CODE BEGIN Application */
 
-void TriggerGPS(void)
+void TriggerTaskGPS(void)
 {
 	osSemaphoreRelease(osSemaphoreGPSHandle);
 }
 
-void TriggerIMU(void)
+void TriggerTaskIMU(void)
 {
 	osSemaphoreRelease(osSemaphoreIMUHandle);
 }

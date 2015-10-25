@@ -291,7 +291,7 @@ void udb_init(void)
 	udb_flags.B = 0;
 	sil_radio_on = 1;
 //	sil_ui_init(mp_rcon);
-	MPU6000_init16(&heartbeat); // initialise mpu from udb_init() from matrixpilot_init()
+	MPU6000_init16(&heartbeat); // initialise mpu from udb_init() from matrixpilot_init() - NOTE: now already called in hardware initialisation
 }
 
 void udb_run(void) // traditionally only idled or stopped the clock
@@ -326,7 +326,7 @@ background_callback gps_trigger_callback = NULL;
 void udb_background_trigger(background_callback callback)
 {
 	gps_trigger_callback = callback;
-	TriggerGPS();
+	TriggerTaskGPS();
 //	if (callback) callback();
 }
 
@@ -364,7 +364,7 @@ void heartbeat(void) // called from MPU6000 ISR
 	}
 
 	udb_heartbeat_counter = (udb_heartbeat_counter+1) % HEARTBEAT_MAX;
-	TriggerIMU();
+	TriggerTaskIMU();
 }
 
 //void pulse(void) // called from TaskIMU
@@ -475,6 +475,41 @@ uint32_t HAL_GetTick(void)
 //		uwTick++;
 	}
 	return uwTick;
+}
+
+void _StartDefaultTask(void const * argument)
+{
+	int16_t pw[8];
+
+	setvbuf(stdout, NULL, _IONBF, 0);
+
+	printf("MatrixPilot STM32-nucleo\r\n");
+
+	matrixpilot_init(); // initialise MP from default CMSOS task in STM32 build
+//	udb_init_GPS();
+	udb_init_GPS(&udb_gps_callback_get_byte_to_send, &udb_gps_callback_received_byte);
+
+	filesys_init(); // attempts to mount a file system (STM builds)
+
+	for(;;)
+	{
+		matrixpilot_loop(); // calls udb_run()
+//		HAL_Delay(1); // do we need to call anything to allow a yield?
+
+		HAL_Delay(25); // should give us very roughly 40Hz
+
+        // Read the inputs
+        radioIn_getInput(pw, 8);
+        // Update the servos
+        set_pwm_outputs(pw);
+
+		if (tsirq)
+		{
+			tsirq = 0;
+			printf("#");
+//			fflush(stdout);
+		}
+  }
 }
 
 //#endif // (BOARD_TYPE == PX4_BOARD)

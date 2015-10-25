@@ -59,6 +59,9 @@
 
     1 tab == 4 spaces!
 */
+#ifdef STM32F4XX
+#error here
+#endif
 
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H

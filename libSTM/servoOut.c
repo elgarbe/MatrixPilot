@@ -67,7 +67,7 @@
 
 int16_t udb_pwOut[NUM_OUTPUTS+1];   // pulse widths for servo outputs
 static volatile int16_t outputNum;
-extern TIM_HandleTypeDef htim3;    // TIM base for PWM CH1 to CH4
+//extern TIM_HandleTypeDef htim3;    // TIM base for PWM CH1 to CH4
 
 // initialize the PWM
 void servoOut_init(void) // was called udb_init_pwm()

@@ -14,22 +14,22 @@ local_src += $(foreach i,$(extra_dirs),$(wildcard $(SOURCE_DIR)/$(subdirectory)/
 #local_inc += libSTM/Drivers libSTM/Drivers/CMSIS/Device/ST/STM32F4xx/Include libSTM/Drivers/CMSIS/Include libSTM/Drivers/STM32F4xx_HAL_Driver/Inc
 #local_inc += libSTM/Middlewares libSTM/Middlewares/Third_Party/FreeRTOS/Source/include libSTM/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS libSTM/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
 
-#local_inc := Inc Src Drivers Drivers/CMSIS/Device/ST/STM32F4xx/Include Drivers/CMSIS/Include Drivers/STM32F4xx_HAL_Driver/Inc Middlewares Middlewares/Third_Party/FreeRTOS/Source/include Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
+local_inc := Inc Src Drivers Drivers/CMSIS/Device/ST/STM32F4xx/Include Drivers/CMSIS/Include Drivers/STM32F4xx_HAL_Driver/Inc Middlewares Middlewares/Third_Party/FreeRTOS/Source/include Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
 
-# NOTE: include the header files directory for the libUDB interface we are fullfilling
-local_inc := ../libUDB
+# NOTE: include the header files directory for the libUDB interface we are fullfilling (temporarily removed as the below breaks the project generator, which cannot yet handle +=
+#local_inc := ../libUDB
 
-local_inc += Inc Src
-local_inc += Drivers
-local_inc += Drivers/CMSIS/Device/ST/STM32F4xx/Include
-local_inc += Drivers/CMSIS/Include
-local_inc += Drivers/STM32F4xx_HAL_Driver/Inc
-local_inc += Middlewares
-local_inc += Middlewares/Third_Party/FreeRTOS/Source/include
-local_inc += Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS
-local_inc += Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
-local_inc += Middlewares/Third_Party/FatFs/src
-local_inc += Middlewares/Third_Party/FatFs/src/drivers
+#local_inc += Inc Src
+#local_inc += Drivers
+#local_inc += Drivers/CMSIS/Device/ST/STM32F4xx/Include
+#local_inc += Drivers/CMSIS/Include
+#local_inc += Drivers/STM32F4xx_HAL_Driver/Inc
+#local_inc += Middlewares
+#local_inc += Middlewares/Third_Party/FreeRTOS/Source/include
+#local_inc += Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS
+#local_inc += Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
+#local_inc += Middlewares/Third_Party/FatFs/src
+#local_inc += Middlewares/Third_Party/FatFs/src/drivers
 
 #incpath += $(addprefix $(SOURCE_DIR)/$(subdirectory)/,$(local_inc))
 incpath += $(addprefix $(subdirectory)/,$(local_inc))

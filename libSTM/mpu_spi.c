@@ -37,11 +37,9 @@ volatile double X_gyro, Y_gyro, Z_gyro;
 uint8_t mpu_dma[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 
-//void TriggerIMU(void);
 void process_MPU_data(uint8_t* mpu_data);
 
 
-//static void no_call_back(void);
 static void no_call_back(void)
 {
 }
@@ -110,7 +108,7 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 
 // ((num & 0xff) >> 8) | (num << 8)
 
-//	TriggerIMU();
+//	TriggerTaskIMU();
 }
 
 /**

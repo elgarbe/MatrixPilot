@@ -51,7 +51,7 @@ static void TaskIMU(void* pvParameters)
 	}
 }
 
-void TriggerIMU(void)
+void TriggerTaskIMU(void)
 {
 	xSemaphoreGiveFromISR(xSemaphoreIMU, NULL);
 }

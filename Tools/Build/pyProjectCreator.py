@@ -454,6 +454,9 @@ if __name__ == '__main__':
 				defines = defines + "\t\t\t<Add option=\"-D" + d + "\" />\n"
 		for inc in inc_list:
 			includes = includes + "\t\t\t<Add directory=\"" + inc + "\" />\n"
+# add the config paths last
+		for inc in opts.config:
+			includes = includes + "\t\t\t<Add directory=\"" + rootsep + inc + "\" />\n"
 		emBlocks_project(arch, opts.name, opts.target, opts.config, defines, includes, headers, sources, project)
 	elif opts.target == "SIL":
 		sources = vs2010_scan_dirs(["*.c"], 1, opts.modules)

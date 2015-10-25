@@ -33,7 +33,7 @@
 
 xSemaphoreHandle xSemaphoreGPS;
 
-void TriggerGPS(void)
+void TriggerTaskGPS(void)
 {
 	xSemaphoreGiveFromISR(xSemaphoreGPS, NULL);
 }

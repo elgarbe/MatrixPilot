@@ -117,7 +117,7 @@ int main(void) // this becomes: int mcu_init(void)
 	led_off(LED_BLUE);
 	led_off(LED_GREEN);
 	led_off(LED_ORANGE);
-	led_on(LED_RED);
+//	led_on(LED_RED);
 
 //	radioIn_init();     //elgarbe**************************************************
 //	start_pwm_outputs();
@@ -182,50 +182,6 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void _StartDefaultTask(void const * argument)
-{
-	int16_t pw[8];
-
-	setvbuf(stdout, NULL, _IONBF, 0);
-
-	printf("MatrixPilot STM32-nucleo\r\n");
-
-	matrixpilot_init(); // initialise from default CMSOS task
-//	udb_init_GPS();
-	udb_init_GPS(&udb_gps_callback_get_byte_to_send, &udb_gps_callback_received_byte);
-
-	filesys_init(); // attempts to mount a file system (STM builds)
-
-  /* Infinite loop */
-  for(;;)
-  {
-		static int i = 0;
-		matrixpilot_loop();
-//		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-		HAL_Delay(25); // should give us very roughly 40Hz
-
-//		if (++i > 5){
-        // Read the inputs
-        radioIn_getInput(pw, 8);
-        // Update the servos
-        set_pwm_outputs(pw);
-//        i=0;
-//		}
-
-		if (tsirq)
-		{
-//			i = 0;
-			tsirq = 0;
-			printf("#");
-//			fflush(stdout);
-		}
-		udb_run();
-//		udb_heartbeat_40hz_callback(); // Run at 40Hz
-//		udb_heartbeat_callback(); // Run at HEARTBEAT_HZ
-
-//		osDelay(1);
-  }
-}
 /* USER CODE END 4 */
 
 #ifdef USE_FULL_ASSERT
