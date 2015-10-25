@@ -140,28 +140,28 @@ void radioIn_failsafe_check(void)
 {
 	// check to see if at least one valid pulse has been received,
 	// and also that the noise rate has not been exceeded
-//	if ((failSafePulses == 0) || (noisePulses > MAX_NOISE_RATE))
-//	{
-//		if (udb_flags._.radio_on == 1)
-//		{
-//			udb_flags._.radio_on = 0;
-//			udb_callback_radio_did_turn_off();
-//		}
-//		led_off(LED_GREEN);
-//		noisePulses = 0; // reset count of noise pulses
-//	}
-//	else
-//	{
-//		udb_flags._.radio_on = 1;
-//		led_on(LED_GREEN);
-//	}
-//	failSafePulses = 0;
+	if ((failSafePulses == 0) || (noisePulses > MAX_NOISE_RATE))
+	{
+		if (udb_flags._.radio_on == 1)
+		{
+			udb_flags._.radio_on = 0;
+			udb_callback_radio_did_turn_off();
+		}
+		led_off(LED_GREEN);
+		noisePulses = 0; // reset count of noise pulses
+	}
+	else
+	{
+		udb_flags._.radio_on = 1;
+		led_on(LED_GREEN);
+	}
+	failSafePulses = 0;
 }
 
 // called from heartbeat pulse at 1Hz
 void radioIn_failsafe_reset(void)
 {
-//	noisePulses = 0;
+	noisePulses = 0;    //noise indicate failsafe
 }
 
 static void set_udb_pwIn(int pwm, int index)
@@ -169,15 +169,15 @@ static void set_udb_pwIn(int pwm, int index)
 //#if (NORADIO != 1)
 	pwm = pwm * TMR_FACTOR / 2; // yes we are scaling the parameter up front
 
-	if (FAILSAFE_INPUT_CHANNEL == index)
+	if (FAILSAFE_INPUT_CHANNEL == index)    //If the index correspond to CHANNEL selected as FailSafe check
 	{
 		if ((pwm > FAILSAFE_INPUT_MIN) && (pwm < FAILSAFE_INPUT_MAX))
 		{
-			failSafePulses++;
+			failSafePulses++;       //Input is normal. If failSafePulses is 0 imply FailSafe
 		}
 		else
 		{
-			noisePulses++;
+			noisePulses++;          // noisePulses indicate bad signa reception
 		}
 	}
 
@@ -388,7 +388,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
                 {
                     if (ppm_ch < NUM_INPUTS)
                     {
-                        set_udb_pwIn(pulse, ppm_ch);
+                        set_udb_pwIn(pulse, ppm_ch);    //Fill udb_pwIn array with pulse on index ppm_ch
                     }
                     ppm_ch++;
                 }
