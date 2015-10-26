@@ -269,17 +269,11 @@ void start_ic(void)
     sConfigIC.ICFilter = 0;
 
 #if (USE_PPM_INPUT == 0)
-      //We are not supporting parallel Input to uC, so we don't need this Inputs
-//NOTE: When using parallel input we need to measure Ton of each channel, so we need to look at Rising and Falling edge
-//    sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_BOTHEDGE;
-    //TODO: Enable as many as NUM_INPUTS Channels
-//	if (NUM_INPUTS > 0)  {HAL_TIM_IC_ConfigChannel(&htim5, &sConfigIC, TIM_CHANNEL_1); HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_1);};
-//	if (NUM_INPUTS > 1)  {HAL_TIM_IC_ConfigChannel(&htim5, &sConfigIC, TIM_CHANNEL_2); HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_2);};
+    //We are not supporting parallel Input to uC, so we don't need this Inputs
+    //Put some error here
 #elif (USE_PPM_INPUT == 1)   //We are using PPM SIGNAL type 1
 //NOTE: When I use PPM type 1 I have to get time between each rising edge
     sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
-    //TODO: Transform PPM_IC to TIM_CHANNELx: (4*PPM_IC)) -> PPM_IC=0 -> IC CH1, PPM_IC=1 -> IC CH2 -> already tested
-    //if (NUM_INPUTS > 0)  {HAL_TIM_IC_ConfigChannel(&htim5, &sConfigIC, 4*PPM_IC); HAL_TIM_IC_Start_IT(&htim5, 4*PPM_IC);};
 //NOTE: We only support for PPM on CHANNEL 2
     if (NUM_INPUTS > 0)  {HAL_TIM_IC_ConfigChannel(&htim5, &sConfigIC, TIM_CHANNEL_2); HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_2);};
 #else                       //We are using PPM SIGNAL typo 2

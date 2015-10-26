@@ -57,15 +57,13 @@
 //#error Invalid MIPS Configuration
 //#endif // MIPS
 
-//TODO: What TMR_FACTOR will be needed by our uC?
-//ANSW: TMR_FACTOR depends on Fcore and time base of each timer.
 //In this case I have Fcore 84mhz and timer 5 is configured at 1MHz, so TMR_FACTOR
 //has to be 4
-#define TMR_FACTOR 4
+#define TMR_FACTOR 2
 
 
 //#define MIN_SYNC_PULSE_WIDTH (14000/TMR_FACTOR) // 3.5ms
-#define MIN_SYNC_PULSE_WIDTH (10000/TMR_FACTOR)     // 2.5ms
+#define MIN_SYNC_PULSE_WIDTH (5000/TMR_FACTOR)     // 2.5ms
 //#define DEBUG_FAILSAFE_MIN_MAX
 
 
@@ -167,7 +165,7 @@ void radioIn_failsafe_reset(void)
 static void set_udb_pwIn(int pwm, int index)
 {
 #if (NORADIO != 1)
-	pwm = pwm * TMR_FACTOR / 2; // yes we are scaling the parameter up front
+	pwm = pwm * TMR_FACTOR;                 // we store 2 times the channel pulse with
 
 	if (FAILSAFE_INPUT_CHANNEL == index)    //If the index correspond to CHANNEL selected as FailSafe check
 	{
@@ -237,7 +235,7 @@ static void set_udb_pwIn(int pwm, int index)
 #endif
 
 /*
-My PPM signal has a fix 500usec TON and then a variable TOFF time. TON+TOFF is channel time.
+My PPM signal has a fixed 500usec TON and then a variable TOFF time. TON+TOFF is channel time.
 So, I have to read time between two rising edge.
 
 PPM_3: Similar to PPM1. PW is time between 2 Rising edge
@@ -278,21 +276,27 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
 		if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)  //We use CHANNEL_2 -> PA1
 		{
 			time = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_2);
-            //TODO: Check that time is > than rise_ppm
-			uint16_t pulse = time - rise_ppm;
+            if(time>rise_ppm)   //we are not near timer counter roll over
+            {
+                uint16_t pulse = time - rise_ppm;
+            }
+            else               // If last timer value is greater than current timer counter
+            {                  // means that timer counter become 65535 and start over 0.
+                uint16_t pulse = time + (65535 - rise_ppm);     // doing this avoid wrong pulse when timer overflow
+            }
 			rise_ppm = time;
 
 #if (USE_PPM_INPUT == 1)    //Type 1. The only one that I'd tested
             if (pulse > MIN_SYNC_PULSE_WIDTH)   //Looking for long pulse time to get synchronized with CH1
             {
-                ppm_ch = 0;
+                ppm_ch = 0;                     //We start with channel 0 and matrix index 0
             }
             else
             {
                 if (ppm_ch >= 0 && ppm_ch < PPM_NUMBER_OF_CHANNELS)
                 {
-                    if (ppm_ch < NUM_INPUTS)
-                    {
+                    if (ppm_ch < NUM_INPUTS)    // This is because we could focus on less channel than
+                    {                           // transmitter sends
                         set_udb_pwIn(pulse, ppm_ch);    //Fill udb_pwIn array with pulse on index ppm_ch
                     }
                     ppm_ch++;
