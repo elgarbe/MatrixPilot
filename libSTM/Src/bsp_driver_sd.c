@@ -159,10 +159,6 @@ uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint64_t ReadAddr, uint32_t Block
   {
     SD_state = MSD_ERROR;
   }
-  else
-  {
-    SD_state = MSD_OK;
-  }
   
   /* Wait until transfer is complete */
   if(SD_state == MSD_OK)
@@ -196,10 +192,6 @@ uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint64_t WriteAddr, uint32_t Blo
   if(HAL_SD_WriteBlocks_DMA(&hsd, pData, WriteAddr, BlockSize, NumOfBlocks) != SD_OK)  
   {
     SD_state = MSD_ERROR;
-  }
-  else
-  {
-    SD_state = MSD_OK;
   }
   
   /* Wait until transfer is complete */

@@ -92,7 +92,7 @@ static int16_t logoStackIndex = 0;
 
 // These values are relative to the origin, and North
 // x and y are in 16.16 fixed point
-struct logoLocation { 
+struct logoLocation {
 	union longww x;
 	union longww y;
 	int16_t z;
@@ -114,7 +114,7 @@ uint16_t logo_save_hex(const logoInstructionDef_t* logo, uint16_t count, const c
 {
 	FILE* fp;
 	uint16_t i;
-	
+
 	fp = fopen(logo_filename, "w+");
 	if (fp) {
 		for (i = 0; i < count; i++) {
@@ -216,7 +216,7 @@ void flightplan_logo_begin(int16_t flightplanNum)
 	turtleLocations[CAMERA].y._.W1 = IMUlocationy._.W1;
 	turtleLocations[CAMERA].z = IMUlocationz._.W1;
 
-	// Calculate heading from Direction Cosine Matrix (rather than GPS), 
+	// Calculate heading from Direction Cosine Matrix (rather than GPS),
 	// So that this code works when the plane is static. e.g. at takeoff
 	curHeading.x = -rmat[1];
 	curHeading.y = rmat[4];
@@ -249,13 +249,15 @@ static void update_goal_from(struct relative3D old_goal)
 {
 	struct relative3D new_goal;
 
+#ifdef USE_EXTENDED_NAV
 	struct relative3D_32 og;
 	struct relative3D_32 ng;
+#endif
 
 	lastGoal.x = new_goal.x = (turtleLocations[PLANE].x._.W1);
 	lastGoal.y = new_goal.y = (turtleLocations[PLANE].y._.W1);
 	lastGoal.z = new_goal.z =  turtleLocations[PLANE].z;
-	
+
 	if (old_goal.x == new_goal.x && old_goal.y == new_goal.y)
 	{
 		old_goal.x = IMUlocationx._.W1;
@@ -263,6 +265,7 @@ static void update_goal_from(struct relative3D old_goal)
 		old_goal.z = IMUlocationz._.W1;
 	}
 
+#ifdef USE_EXTENDED_NAV
 	og.x = old_goal.x;
 	og.y = old_goal.y;
 	og.z = old_goal.z;
@@ -271,7 +274,6 @@ static void update_goal_from(struct relative3D old_goal)
 	ng.y = new_goal.y;
 	ng.z = new_goal.z;
 
-#ifdef USE_EXTENDED_NAV
 	navigate_set_goal(og, ng);
 #else
 	navigate_set_goal(old_goal, new_goal);
@@ -398,7 +400,7 @@ static int16_t get_current_stack_parameter_frame_index(void)
 
 static int16_t get_current_angle(void)
 {
-	// Calculate heading from Direction Cosine Matrix (rather than GPS), 
+	// Calculate heading from Direction Cosine Matrix (rather than GPS),
 	// So that this code works when the plane is static. e.g. at takeoff
 	struct relative2D curHeading;
 	int8_t earth_yaw;
@@ -567,7 +569,7 @@ static boolean process_one_instruction(struct logoInstructionDef instr)
 						interruptStackBase = 0;
 					}
 					break;
-				
+
 				case 3: // Else
 					if (logoStack[logoStackIndex].frameType == LOGO_FRAME_TYPE_IF)
 					{
@@ -575,7 +577,7 @@ static boolean process_one_instruction(struct logoInstructionDef instr)
 						logoStackIndex--;
 					}
 					break;
-				
+
 				case 2: // To (define a function)
 				{
 					// Shouldn't ever run these lines.
@@ -614,7 +616,7 @@ static boolean process_one_instruction(struct logoInstructionDef instr)
 					int16_t cangle = turtleAngles[currentTurtle];   // 0-359 (clockwise, 0=North)
 					int8_t b_angle = (cangle * 182 + 128) >> 8;     // 0-255 (clockwise, 0=North)
 					b_angle = -b_angle - 64;                        // 0-255 (ccw, 0=East)
-					
+
 					turtleLocations[currentTurtle].x.WW += (__builtin_mulss(-cosine(b_angle), instr.arg) << 2);
 					turtleLocations[currentTurtle].y.WW += (__builtin_mulss(-sine(b_angle), instr.arg) << 2);
 				}
@@ -700,7 +702,7 @@ static boolean process_one_instruction(struct logoInstructionDef instr)
 
 					absoluteYLong._.W1 = absoluteHighWord;
 					absoluteYLong._.W0 = instr.arg;
-					
+
 					wp.x = absoluteXLong.WW;
 					wp.y = absoluteYLong.WW;
 					wp.z = 0;
@@ -803,7 +805,7 @@ static boolean process_one_instruction(struct logoInstructionDef instr)
 				case 1: // Set
 					interruptIndex = find_start_of_subroutine(instr.arg);
 					break;
-					
+
 				case 0: // Clear
 					interruptIndex = 0;
 					break;
@@ -868,14 +870,14 @@ static void process_instructions(void)
 	while (1)
 	{
 		boolean do_fly = process_one_instruction(currentInstructionSet[instructionIndex]);
-		
+
 		instructionsProcessed++;
 		instructionIndex++;
 		if (instructionIndex >= numInstructionsInCurrentSet) instructionIndex = 0;
-		
+
 		if (do_fly && penState == 0 && currentTurtle == PLANE)
 			break;
-		
+
 		if (instructionsProcessed >= MAX_INSTRUCTIONS_PER_CYCLE)
 			return;  // don't update goal if we didn't hit a FLY command
 	}
