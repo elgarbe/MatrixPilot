@@ -66,6 +66,11 @@ extern volatile uint16_t osc_fail_count;
 void udb_magnetometer_callback(void);
 uint16_t get_reset_flags(void);
 
+// TODO: fixme - place these prototypes someplace else. RobD
+int matrixpilot_init(void);
+int matrixpilot_loop(void);
+void TriggerTaskIMU(void);
+void TriggerTaskGPS(void);
 
 #endif // _LIBSTM_H_
 

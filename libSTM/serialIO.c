@@ -37,7 +37,6 @@ int32_t gps_baud_rate = 0;
 void udb_gps_set_rate(int32_t rate) { gps_baud_rate = rate; }
 boolean udb_gps_check_rate(int32_t rate) { return (gps_baud_rate == rate); }
 
-//void udb_init_GPS(void)
 void udb_init_GPS(int16_callback_fptr_t tx_fptr, callback_uint8_fptr_t rx_fptr)
 {
 //	HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart)
@@ -69,7 +68,7 @@ void MP_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 
 void udb_gps_start_sending_data(void)
 {
-	uint8_t *pData = gps_out_buffer_get();
+	const uint8_t *pData = gps_out_buffer_get();
 	uint16_t Size = gps_out_buffer_length_get();
 //HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
 	if (pData != 0 && Size != 0)

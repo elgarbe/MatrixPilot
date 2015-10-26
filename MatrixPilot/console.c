@@ -242,7 +242,7 @@ static void cmd_gains(char* arg)
 	printf("ALT_HOLD_PITCH_MAX: %f\r\n", (double)altit.AltHoldPitchMax);
 	printf("ALT_HOLD_PITCH_HIGH: %f\r\n", (double)altit.AltHoldPitchHigh);
 }
-
+/*
 static void printbin16(int a)
 {
 	unsigned int i;
@@ -251,7 +251,7 @@ static void printbin16(int a)
 		else printf("0");
 	}
 }
-
+ */
 const char* byte_to_binary(int x)
 {
 	static char b[9];
@@ -295,6 +295,7 @@ static void cmd_uart(char* arg)
 #else
 #if (PX4 == 1)
 	printf("sending test data to uart 6... ");
+void Test_HAL_UART_Transmit_IT(void);
 	Test_HAL_UART_Transmit_IT();
 	printf("done.\r\n");
 #endif
@@ -413,7 +414,7 @@ double gcdist(double lat1, double lon1, double lat2, double lon2) // Compute dis
 }
 
 //	  radians = degrees * 3.1415926 / 180;
-
+/*
 static void cmd_navcalc(char* arg)
 {
 	double lat1 = -0.025244442;
@@ -429,6 +430,7 @@ static void cmd_navcalc(char* arg)
 	dist = dist * 180 * 60 / 3.1415926;
 	printf("gcdist = %f Nm\r\n", dist);
 }
+ */
 /*
 	deg:min:sec	rad			rad	nm
 latitude1	S1.4464	-0.025244442		distance	1.36993292	4709.482

@@ -22,7 +22,6 @@
 typedef int16_t (*int16_callback_fptr_t)(void);
 typedef void (*callback_uint8_fptr_t)(uint8_t);
 
-//void udb_init_GPS(void);
 void udb_init_GPS(int16_callback_fptr_t tx_fptr, callback_uint8_fptr_t rx_fptr);
 void udb_gps_set_rate(int32_t rate);
 boolean udb_gps_check_rate(int32_t rate);

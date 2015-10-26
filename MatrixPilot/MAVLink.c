@@ -59,6 +59,7 @@
 #include "../libDCM/deadReckoning.h"
 #include "../libDCM/estAltitude.h"
 #include "../libDCM/mathlibNAV.h"
+#include "../libUDB/serialIO.h"
 #include "../libUDB/servoOut.h"
 #include "../libUDB/ADchannel.h"
 #include "../libUDB/events.h"

@@ -35,11 +35,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "i2c.h"
 
-
-
 #include "gpio.h"
-
-
 
 /* USER CODE BEGIN 0 */
 
@@ -48,11 +44,9 @@
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c3;
 
-
 /* I2C1 init function */
 void MX_I2C1_Init(void)
 {
-
 
   hi2c1.Instance = I2C1;
   hi2c1.Init.ClockSpeed = 100000;
@@ -65,12 +59,10 @@ void MX_I2C1_Init(void)
   hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLED;
   HAL_I2C_Init(&hi2c1);
 
-
 }
 /* I2C3 init function */
 void MX_I2C3_Init(void)
 {
-
 
   hi2c3.Instance = I2C3;
   hi2c3.Init.ClockSpeed = 100000;
@@ -83,11 +75,7 @@ void MX_I2C3_Init(void)
   hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLED;
   HAL_I2C_Init(&hi2c3);
 
-
 }
-
-
-
 
 void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
 {
@@ -154,11 +142,8 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
   }
 }
 
-
 void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
 {
-
-
 
   if(hi2c->Instance==I2C1)
   {
@@ -173,7 +158,6 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
     PB7     ------> I2C1_SDA 
     */
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_6|GPIO_PIN_7);
-
 
     /* Peripheral interrupt Deinit*/
     HAL_NVIC_DisableIRQ(I2C1_EV_IRQn);
@@ -205,7 +189,6 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
   /* USER CODE END I2C3_MspDeInit 1 */
   }
 } 
-
 
 /* USER CODE BEGIN 1 */
 

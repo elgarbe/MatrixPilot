@@ -486,7 +486,6 @@ void _StartDefaultTask(void const * argument)
 	printf("MatrixPilot STM32-nucleo\r\n");
 
 	matrixpilot_init(); // initialise MP from default CMSOS task in STM32 build
-//	udb_init_GPS();
 	udb_init_GPS(&udb_gps_callback_get_byte_to_send, &udb_gps_callback_received_byte);
 
 	filesys_init(); // attempts to mount a file system (STM builds)
