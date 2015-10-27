@@ -90,7 +90,7 @@ void MX_TIM5_Init(void)
   TIM_IC_InitTypeDef sConfigIC;
 
   htim5.Instance = TIM5;
-  htim5.Init.Prescaler = 0;
+  htim5.Init.Prescaler = 84-1;
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim5.Init.Period = 0xFFFF;
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
