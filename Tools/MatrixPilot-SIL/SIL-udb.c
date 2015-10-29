@@ -12,6 +12,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _MSC_VER
+#include <process.h> // this is correct for the MSVC build - declares _execv
+#else
+//#include <process.h> // not sure about the *nix builds..
+#endif
+
 #include "../../libUDB/libUDB.h"
 #include "../../libUDB/magnetometer.h"
 #include "../../libUDB/heartbeat.h"
@@ -324,7 +330,11 @@ void sil_reset(void)
 	if (telemetrySocket) UDBSocket_close(telemetrySocket);
 	if (serialSocket)    UDBSocket_close(serialSocket);
 
+#ifdef _MSC_VER
+	_execv(mp_argv[0], args);
+#else
 	execv(mp_argv[0], args);
+#endif
 	fprintf(stderr, "Failed to reset UDB %s\n", mp_argv[0]);
 	exit(1);
 }
@@ -574,7 +584,7 @@ int16_t FindFirstBitFromLeft(int16_t val)
 //long _Q16atan(int32_t a) { return 0; }
 
 void vApplicationTickHook(void) {}
-//void vApplicationIdleHook(void) {}
+void vApplicationIdleHook(void) {}
 
 //void *pvPortMalloc( size_t xWantedSize )
 //{
