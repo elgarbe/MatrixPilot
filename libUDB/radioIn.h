@@ -25,9 +25,7 @@ uint8_t radioIn_getInput(int16_t* ppm, uint8_t channels);
 
 void udb_servo_record_trims(void);
 
-// called from heartbeat pulse at 20Hz
-void radioIn_failsafe_check(void);
-// called from heartbeat pulse at 1Hz
-void radioIn_failsafe_reset(void);
+void radioIn_failsafe_check(void); // called from heartbeat pulse at 20Hz
+void radioIn_failsafe_reset(void); // called from heartbeat pulse at 1Hz
 
 void udb_callback_radio_did_turn_off(void); // callback

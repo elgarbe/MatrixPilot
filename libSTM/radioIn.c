@@ -60,12 +60,12 @@
 //TODO: What TMR_FACTOR will be needed by our uC?
 //ANSW: TMR_FACTOR depends on Fcore and time base of each timer.
 //In this case I have Fcore 84mhz and timer 5 is configured at 1MHz, so TMR_FACTOR
-//have to be 4
+//has to be 4
 #define TMR_FACTOR 4
 
 
 //#define MIN_SYNC_PULSE_WIDTH (14000/TMR_FACTOR) // 3.5ms
-#define MIN_SYNC_PULSE_WIDTH (10000/TMR_FACTOR) // 2.5ms
+#define MIN_SYNC_PULSE_WIDTH (10000/TMR_FACTOR)     // 2.5ms
 //#define DEBUG_FAILSAFE_MIN_MAX
 
 
@@ -120,7 +120,7 @@ void radioIn_init(void) // was called udb_init_capture(void)
 //#endif
 //	{
 		for (i = 0; i < NUM_INPUTS; i++)
-		    //TODO: Find where FIXED_TRIMPOINT were defined on other versions
+        //TODO: FIXED_TRIMPOINT is not defined. Should we define or should remove following code?
 //	#if (FIXED_TRIMPOINT == 1)
 //			if (i == THROTTLE_OUTPUT_CHANNEL)
 //				udb_pwTrim[i] = udb_pwIn[i] = THROTTLE_TRIMPOINT;
@@ -166,7 +166,7 @@ void radioIn_failsafe_reset(void)
 
 static void set_udb_pwIn(int pwm, int index)
 {
-//#if (NORADIO != 1)
+#if (NORADIO != 1)
 	pwm = pwm * TMR_FACTOR / 2; // yes we are scaling the parameter up front
 
 	if (FAILSAFE_INPUT_CHANNEL == index)    //If the index correspond to CHANNEL selected as FailSafe check
@@ -181,41 +181,42 @@ static void set_udb_pwIn(int pwm, int index)
 		}
 	}
 
-//#if (FLY_BY_DATALINK_ENABLED == 1)
-//	// It's kind of a bad idea to override the radio mode input
-//	if (MODE_SWITCH_INPUT_CHANNEL == index)
-//	{
-//		udb_pwIn[index] = pwm;
-//	}
-//	else
-//	{
-//		if (udb_pwIn[MODE_SWITCH_INPUT_CHANNEL] < MODE_SWITCH_THRESHOLD_LOW)
-//		{
-//			// if mode is in low mode, use pwm values that came in from external source
-//			udb_pwIn[index] = get_fbdl_pwm(index);
-//		}
-//		else
-//		{
-//			udb_pwIn[index] = pwm;
-//		}
-//	}
-//#else
-//	if (FAILSAFE_INPUT_CHANNEL == index)
-//	{
-//		//DPRINT("FS: %u %u %u\r\n", pwm, failSafePulses, noisePulses);
-//		#ifdef DEBUG_FAILSAFE_MIN_MAX
-//		{
-//			static uint8_t foo = 0;
-//			if (!(++foo % 32))
-//			{
-//				DPRINT("FS: %u\r\n", pwm);
-//			}
-//		}
-//		#endif // DEBUG_FAILSAFE_MIN_MAX
-//	}
+#if (FLY_BY_DATALINK_ENABLED == 1)
+	// It's kind of a bad idea to override the radio mode input
+	if (MODE_SWITCH_INPUT_CHANNEL == index)
+	{
+		udb_pwIn[index] = pwm;
+	}
+	else
+	{
+		if (udb_pwIn[MODE_SWITCH_INPUT_CHANNEL] < MODE_SWITCH_THRESHOLD_LOW)
+		{
+			// if mode is in low mode, use pwm values that came in from external source
+			udb_pwIn[index] = get_fbdl_pwm(index);
+		}
+		else
+		{
+			udb_pwIn[index] = pwm;
+		}
+	}
+#else
+	if (FAILSAFE_INPUT_CHANNEL == index)
+	{
+		//DPRINT("FS: %u %u %u\r\n", pwm, failSafePulses, noisePulses);
+		// DEBUG_FAILSAFE_MIN_MAX is commented on top of this file
+		#ifdef DEBUG_FAILSAFE_MIN_MAX
+		{
+			static uint8_t foo = 0;
+			if (!(++foo % 32))
+			{
+				DPRINT("FS: %u\r\n", pwm);
+			}
+		}
+		#endif // DEBUG_FAILSAFE_MIN_MAX
+	}
 	udb_pwIn[index] = pwm;
-//#endif // FLY_BY_DATALINK_ENABLED
-//#endif // NOARADIO !=1
+#endif // FLY_BY_DATALINK_ENABLED
+#endif // NOARADIO !=1
 }
 //
 //#if (NORADIO != 1)
@@ -226,105 +227,6 @@ static void set_udb_pwIn(int pwm, int index)
 // USE_PPM_INPUT will always be 1 or 2 because we always use PPM signal
 #if (USE_PPM_INPUT == 0)
 
-//void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
-//
-//	uint16_t time = 0;
-//	static uint16_t rise=0;
-//
-//    if( htim->Instance == TIM5 )
-//	{
-//		/* CHANNEL 1 called ISR */
-//		if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
-//		{
-//			// Get the Captured timer
-//		//	time = HAL_TIM_ReadCapturedValue(&htim5, TIM_CHANNEL_1);
-//			// Is it ok? I remove a warning passing htim instead of &htim, but it is ok?
-//			time = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-//			if (IC_PIN1) //Rising edge?
-//			{
-//				// There is a problem with this approach. if previous capture were 65000 and current capture is 23 so
-//				// 23-65000 -> overflow. I think that this is filtered out by noise filter function
-////
-//// NOTE: i hope not! if this condition can exist then we should detect the counter rollover
-////       and perform the arithmatic appropriately.. (RobD)
-////
-//				rise = time;
-//			}
-//			else // falling edge
-//			{
-//				set_udb_pwIn(rise-time, 1); // Return captured timer
-//			}
-//		}
-//		/* CHANNEL 2 called ISR */
-//		else if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
-//		{
-//			time = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_2);
-//			if (IC_PIN2)
-//			{
-//				rise = time;
-//			}
-//			else
-//			{
-//				set_udb_pwIn(rise-time, 2);
-//			}
-//		}
-//	}
-//	else if (htim->Instance == TIM4)
-//	{
-//		/* CHANNEL 1 called ISR */
-//		if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
-//		{
-//			time = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-//			if (IC_PIN3)
-//			{
-//				rise = time;
-//			}
-//			else
-//			{
-//				set_udb_pwIn(rise-time, 3);
-//			}
-//		}
-//		/* CHANNEL 2 called ISR */
-//		else if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
-//		{
-//			time = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_2);
-//			if (IC_PIN4)
-//			{
-//				rise = time;
-//			}
-//			else
-//			{
-//				set_udb_pwIn(rise-time, 4);
-//			}
-//		}
-//			/* CHANNEL 3 called ISR */
-//		else if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_3)
-//		{
-//			time = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_3);
-//			if (IC_PIN5)
-//			{
-//				rise = time;
-//			}
-//			else
-//			{
-//				set_udb_pwIn(rise-time, 5);
-//			}
-//		}
-//		/* CHANNEL 4 called ISR */
-//		else if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4)
-//		{
-//			time = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
-//			if (IC_PIN6)
-//			{
-//				rise = time;
-//			}
-//			else
-//			{
-//				set_udb_pwIn(rise-time, 6);
-//			}
-//		}
-//	}
-//}
 #else // (USE_PPM_INPUT != 0)
 
 //I'm not using this, because I check signal on one edge.
@@ -335,6 +237,9 @@ static void set_udb_pwIn(int pwm, int index)
 #endif
 
 /*
+My PPM signal has a fix 500usec TON and then a variable TOFF time. TON+TOFF is channel time.
+So, I have to read time between two rising edge.
+
 PPM_3: Similar to PPM1. PW is time between 2 Rising edge
 
        1     2       3        4      5       6      7
