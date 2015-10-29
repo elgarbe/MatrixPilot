@@ -154,7 +154,7 @@ void idle_task(void)
 	}
 }
 
-#if 0
+#ifdef _MSC_VER
 void vApplicationMallocFailedHook(void)
 {
 	/* vApplicationMallocFailedHook() will only be called if
@@ -172,4 +172,4 @@ void vApplicationMallocFailedHook(void)
 //	taskDISABLE_INTERRUPTS();
 	for( ;; );
 }
-#endif // 0
+#endif

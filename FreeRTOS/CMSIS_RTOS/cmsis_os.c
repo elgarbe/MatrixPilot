@@ -21,6 +21,7 @@
   *
   ******************************************************************************
   */ 
+#ifndef _MSC_VER
 
 #include <string.h>
 #include "cmsis_os.h"
@@ -1404,3 +1405,5 @@ osStatus osRecursiveMutexWait (osMutexId mutex_id, uint32_t millisec)
 	return osErrorResource;
 #endif
 }
+
+#endif // _MSC_VER

@@ -607,7 +607,7 @@ static void msg_PL1(uint8_t gpschar)
 #if (HILSIM == 1)
 				case 0xAB : { // NAV-BODYRATES message - THIS IS NOT AN OFFICIAL UBX MESSAGE
 					// WE ARE FAKING THIS FOR HIL SIMULATION
-					if (payloadlength.BB  == NUM_POINTERS_IN(msg_BODYRATES_parse))
+					if (payloadlength.BB == NUM_POINTERS_IN(msg_BODYRATES_parse))
 					{
 						msg_parse = &msg_BODYRATES;
 					}
@@ -619,7 +619,7 @@ static void msg_PL1(uint8_t gpschar)
 				}
 				case 0xAC : { // NAV-KEYSTROKE message - THIS IS NOT AN OFFICIAL UBX MESSAGE
 					// WE ARE FAKING THIS FOR HIL SIMULATION
-					if (payloadlength.BB ==  NUM_POINTERS_IN(msg_KEYSTROKE_parse))
+					if (payloadlength.BB == NUM_POINTERS_IN(msg_KEYSTROKE_parse))
 					{
 						msg_parse = &msg_KEYSTROKE;
 					}
@@ -976,6 +976,20 @@ xplm_UpFlag         16  The key is being released
 //		printf("HILSIM keystroke %u %02x\r\n", x_vkey_, x_ckey_);
 		hilsim_handle_key_input(x_vkey_);
 	}
+}
+
+void HILSIM_get_gplane(fractional gplane[])
+{
+	gplane[0] = g_a_x_sim.BB;
+	gplane[1] = g_a_y_sim.BB;
+	gplane[2] = g_a_z_sim.BB;
+}
+
+void HILSIM_get_omegagyro(fractional omegagyro[])
+{
+	omegagyro[0] = q_sim.BB;
+	omegagyro[1] = p_sim.BB;
+	omegagyro[2] = r_sim.BB;
 }
 
 void HILSIM_set_gplane(void)

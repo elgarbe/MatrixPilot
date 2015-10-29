@@ -90,7 +90,7 @@ void MX_TIM5_Init(void)
   TIM_IC_InitTypeDef sConfigIC;
 
   htim5.Instance = TIM5;
-  htim5.Init.Prescaler = 84-1;                  //we have to slow down the base timer to 1MHz
+  htim5.Init.Prescaler = 84-1;
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim5.Init.Period = 0xFFFF;                   //we can count 65535 uSeg o 65.5mSeg.
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -136,12 +136,12 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE END TIM3_MspInit 0 */
     /* Peripheral clock enable */
     __TIM3_CLK_ENABLE();
-  
-    /**TIM3 GPIO Configuration    
+
+    /**TIM3 GPIO Configuration
     PB0     ------> TIM3_CH3
     PB1     ------> TIM3_CH4
     PB4     ------> TIM3_CH1
-    PB5     ------> TIM3_CH2 
+    PB5     ------> TIM3_CH2
     */
     GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -161,9 +161,9 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE END TIM5_MspInit 0 */
     /* Peripheral clock enable */
     __TIM5_CLK_ENABLE();
-  
-    /**TIM5 GPIO Configuration    
-    PA1     ------> TIM5_CH2 
+
+    /**TIM5 GPIO Configuration
+    PA1     ------> TIM5_CH2
     */
     GPIO_InitStruct.Pin = GPIO_PIN_1;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -206,12 +206,12 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE END TIM3_MspDeInit 0 */
     /* Peripheral clock disable */
     __TIM3_CLK_DISABLE();
-  
-    /**TIM3 GPIO Configuration    
+
+    /**TIM3 GPIO Configuration
     PB0     ------> TIM3_CH3
     PB1     ------> TIM3_CH4
     PB4     ------> TIM3_CH1
-    PB5     ------> TIM3_CH2 
+    PB5     ------> TIM3_CH2
     */
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5);
 
@@ -226,9 +226,9 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE END TIM5_MspDeInit 0 */
     /* Peripheral clock disable */
     __TIM5_CLK_DISABLE();
-  
-    /**TIM5 GPIO Configuration    
-    PA1     ------> TIM5_CH2 
+
+    /**TIM5 GPIO Configuration
+    PA1     ------> TIM5_CH2
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_1);
 
@@ -254,7 +254,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
 
   /* USER CODE END TIM10_MspDeInit 1 */
   }
-} 
+}
 
 /* USER CODE BEGIN 1 */
 

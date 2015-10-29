@@ -65,7 +65,14 @@ void vApplicationIdleHook(void)
 }
 
 #else
+
+//
+// NOTE: RobD: if vApplic... is required for a build target, implement it locally to the build.
+//
+
+//#ifdef _MSC_VER
 //void vApplicationIdleHook(void)
 //{
 //}
+//#endif // _MSC_VER
 #endif // USE_FREERTOS

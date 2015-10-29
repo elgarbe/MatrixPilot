@@ -59,11 +59,11 @@
 
 //In this case I have Fcore 84mhz and timer 5 is configured at 1MHz, so TMR_FACTOR
 //has to be 4
-#define TMR_FACTOR 2
+#define TMR_FACTOR 4
 
 
 //#define MIN_SYNC_PULSE_WIDTH (14000/TMR_FACTOR) // 3.5ms
-#define MIN_SYNC_PULSE_WIDTH (5000/TMR_FACTOR)     // 2.5ms
+#define MIN_SYNC_PULSE_WIDTH (10000/TMR_FACTOR)     // 2.5ms
 //#define DEBUG_FAILSAFE_MIN_MAX
 
 
@@ -165,7 +165,7 @@ void radioIn_failsafe_reset(void)
 static void set_udb_pwIn(int pwm, int index)
 {
 #if (NORADIO != 1)
-	pwm = pwm * TMR_FACTOR;                 // we store 2 times the channel pulse with
+	pwm = pwm * TMR_FACTOR / 2; // yes we are scaling the parameter up front
 
 	if (FAILSAFE_INPUT_CHANNEL == index)    //If the index correspond to CHANNEL selected as FailSafe check
 	{
@@ -235,7 +235,11 @@ static void set_udb_pwIn(int pwm, int index)
 #endif
 
 /*
+<<<<<<< HEAD
 My PPM signal has a fixed 500usec TON and then a variable TOFF time. TON+TOFF is channel time.
+=======
+My PPM signal has a fix 500usec TON and then a variable TOFF time. TON+TOFF is channel time.
+>>>>>>> robert/MatrixPilot_Nucleo
 So, I have to read time between two rising edge.
 
 PPM_3: Similar to PPM1. PW is time between 2 Rising edge
@@ -270,6 +274,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
 	static uint16_t rise_ppm = 0;
 	static uint8_t ppm_ch = 0;
 	uint16_t time = 0;
+    uint16_t pulse=0;
 
 	if (htim->Instance == TIM5)     //We use TIMER5 for PPM decode
 	{
@@ -278,11 +283,11 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
 			time = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_2);
             if(time>rise_ppm)   //we are not near timer counter roll over
             {
-                uint16_t pulse = time - rise_ppm;
+                pulse = time - rise_ppm;
             }
             else               // If last timer value is greater than current timer counter
             {                  // means that timer counter become 65535 and start over 0.
-                uint16_t pulse = time + (65535 - rise_ppm);     // doing this avoid wrong pulse when timer overflow
+                pulse = time + (65535 - rise_ppm);     // doing this avoid wrong pulse when timer overflow
             }
 			rise_ppm = time;
 
