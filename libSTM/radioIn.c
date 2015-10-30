@@ -298,8 +298,6 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
                     ppm_ch++;
                 }
             }
-
-        }
 #elif (USE_PPM_INPUT == 2)      //TODO: I need to rewrite this. I will need to config IC on both edge....
             if (pulse > MIN_SYNC_PULSE_WIDTH)
             {
@@ -318,13 +316,10 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
 					ppm_ch++;
 				}
 			}
-
-        }
-
-
 #else // USE_PPM_INPUT > 2
 #error Invalid USE_PPM_INPUT setting
 #endif // USE_PPM_INPUT
+        }
 	}
 }
 #endif
