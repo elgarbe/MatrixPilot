@@ -120,7 +120,7 @@ int main(void) // this becomes: int mcu_init(void)
 	led_off(LED_ORANGE);
 //	led_on(LED_RED);
 
-	radioIn_init();     //Robert, you have to finde a better place for this function, right?
+	radioIn_init();     //Robert, you have to find a better place for this functions, right?
 	servoOut_init();
 	start_pwm_outputs();
 	MPU6000_init16(&heartbeat); // initialise mpu in STM32 builds
