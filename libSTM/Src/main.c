@@ -106,6 +106,7 @@ int main(void) // this becomes: int mcu_init(void)
   MX_SPI1_Init();
   MX_SPI2_Init();
   MX_TIM3_Init();
+  MX_TIM4_Init();
   MX_TIM5_Init();
   MX_TIM10_Init();
   MX_USART1_UART_Init();
@@ -119,8 +120,9 @@ int main(void) // this becomes: int mcu_init(void)
 	led_off(LED_ORANGE);
 //	led_on(LED_RED);
 
-	radioIn_init();
-//	start_pwm_outputs();
+	radioIn_init();     //Robert, you have to finde a better place for this function, right?
+	servoOut_init();
+	start_pwm_outputs();
 	MPU6000_init16(&heartbeat); // initialise mpu in STM32 builds
 
   /* USER CODE END 2 */
