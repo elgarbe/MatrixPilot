@@ -144,7 +144,7 @@ uint8_t read_reg(uint8_t reg)
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
 	if (err != HAL_OK){
 		mpu_spi_error(err);
-		while(1);
+//		while(1);
 	}
 	// this delay is necessary; it appears that SS must be de-asserted for one or
 	// more SPI clock cycles between writes.
