@@ -32,83 +32,143 @@
 
 #if (BOARD_TYPE != UDB4_BOARD)
 
-#include <spi.h>
+///////////////////////////////////////////////////////////////////////////////
 
-//Sensor variables
-uint16_t mpu_data[8], mpuCnt = 0;
+#define MPU6000_ONE_G                               9.80665f
+
+unsigned _sample_rate = 200; // default MPU-6000 sampling rate (Hz)
+uint8_t _product;
+float _accel_range_scale;
+float _accel_range_m_s2;
+
+///////////////////////////////////////////////////////////////////////////////
+
 boolean mpuDAV = false;
-
-//struct ADchannel udb_xaccel, udb_yaccel, udb_zaccel; // x, y, and z accelerometer channels
-//struct ADchannel udb_xrate,  udb_yrate,  udb_zrate;  // x, y, and z gyro channels
 struct ADchannel mpu_temp;
 int16_t vref_adj;
 
-// MPU6000 Initialization and configuration
-
 static callback_fptr_t callback = NULL;
 
-void MPU6000_init16(callback_fptr_t fptr)
+static int set_accel_range(unsigned max_g_in)
 {
-	callback = fptr;
+	// workaround for bugged versions of MPU6k (rev C)
 
-// MPU-6000 maximum SPI clock is specified as 1 MHz for all registers
-//    however the datasheet states that the sensor and interrupt registers
-//    may be read using an SPI clock of 20 Mhz
-//    NOTE!!: the SPI limit on the dsPIC is 9 Mhz
+	switch (_product) {
+		case MPU6000ES_REV_C4:
+		case MPU6000ES_REV_C5:
+		case MPU6000_REV_C4:
+		case MPU6000_REV_C5:
+			mpu_spi_write_checked_reg(MPUREG_ACCEL_CONFIG, 1 << 3);
+			_accel_range_scale = (MPU6000_ONE_G / 4096.0f);
+			_accel_range_m_s2 = 8.0f * MPU6000_ONE_G;
+			return 0;
+	}
 
-// Primary prescaler options   1:1/4/16/64
-// Secondary prescaler options 1:1 to 1:8
+	uint8_t afs_sel;
+	float lsb_per_g;
+	float max_accel_g;
 
-// As these register accesses are one time only during initial setup lets be
-//    conservative and only run the SPI bus at half the maximum specified speed
+	if (max_g_in > 8) { // 16g - AFS_SEL = 3
+		afs_sel = 3;
+		lsb_per_g = 2048;
+		max_accel_g = 16;
+	} else if (max_g_in > 4) { //  8g - AFS_SEL = 2
+		afs_sel = 2;
+		lsb_per_g = 4096;
+		max_accel_g = 8;
+	} else if (max_g_in > 2) { //  4g - AFS_SEL = 1
+		afs_sel = 1;
+		lsb_per_g = 8192;
+		max_accel_g = 4;
+	} else {                //  2g - AFS_SEL = 0
+		afs_sel = 0;
+		lsb_per_g = 16384;
+		max_accel_g = 2;
+	}
 
-#if (MIPS == 70)
-	// set prescaler for FCY/112 = 625 kHz at 70MIPS
-	initMPUSPI_master16(SEC_PRESCAL_7_1, PRI_PRESCAL_16_1);
-#elif (MIPS == 64)
-	// set prescaler for FCY/96 = 667 kHz at 64MIPS
-	initMPUSPI_master16(SEC_PRESCAL_6_1, PRI_PRESCAL_16_1);
-#elif (MIPS == 40)
-	// set prescaler for FCY/64 = 625 KHz at 40MIPS
-	initMPUSPI_master16(SEC_PRESCAL_4_1, PRI_PRESCAL_16_1);
-#elif (MIPS == 32)
-	// set prescaler for FCY/48 = 667 kHz at 32 MIPS
-	initMPUSPI_master16(SEC_PRESCAL_3_1, PRI_PRESCAL_16_1);
-#elif (MIPS == 16)
-	// set prescaler for FCY/24 = 667 kHz at 16MIPS
-	initMPUSPI_master16(SEC_PRESCAL_6_1, PRI_PRESCAL_4_1);
-#else
-#error Invalid MIPS Configuration
-#endif // MIPS
+	mpu_spi_write_checked_reg(MPUREG_ACCEL_CONFIG, afs_sel << 3);
+//	_accel_range_scale = (MPU6000_ONE_G / lsb_per_g);
+//	_accel_range_m_s2 = max_accel_g * MPU6000_ONE_G;
 
-	// need at least 60 msec delay here
-	delay_ms(60);
-	writeMPUSPIreg16(MPUREG_PWR_MGMT_1, BIT_H_RESET);
+	return 0;
+}
+
+/*
+  set sample rate (approximate) - 1kHz to 5Hz, for both accel and gyro
+*/
+static void _set_sample_rate(unsigned desired_sample_rate_hz)
+{
+//	if (desired_sample_rate_hz == 0 ||
+//			desired_sample_rate_hz == GYRO_SAMPLERATE_DEFAULT ||
+//			desired_sample_rate_hz == ACCEL_SAMPLERATE_DEFAULT) {
+//		desired_sample_rate_hz = MPU6000_GYRO_DEFAULT_RATE;
+//	}
+
+	uint8_t div = 1000 / desired_sample_rate_hz;
+	if(div>200) div=200;
+	if(div<1) div=1;
+	mpu_spi_write_checked_reg(MPUREG_SMPLRT_DIV, div-1);
+	_sample_rate = 1000 / div;
+}
+
+/*
+  set the DLPF filter frequency. This affects both accel and gyro.
+ */
+static void _set_dlpf_filter(uint16_t frequency_hz)
+{
+	uint8_t filter;
+
+//	   choose next highest filter frequency available
+	if (frequency_hz == 0) {
+		filter = BITS_DLPF_CFG_2100HZ_NOLPF;
+	} else if (frequency_hz <= 5) {
+		filter = BITS_DLPF_CFG_5HZ;
+	} else if (frequency_hz <= 10) {
+		filter = BITS_DLPF_CFG_10HZ;
+	} else if (frequency_hz <= 20) {
+		filter = BITS_DLPF_CFG_20HZ;
+	} else if (frequency_hz <= 42) {
+		filter = BITS_DLPF_CFG_42HZ;
+	} else if (frequency_hz <= 98) {
+		filter = BITS_DLPF_CFG_98HZ;
+	} else if (frequency_hz <= 188) {
+		filter = BITS_DLPF_CFG_188HZ;
+	} else if (frequency_hz <= 256) {
+		filter = BITS_DLPF_CFG_256HZ_NOLPF2;
+	} else {
+		filter = BITS_DLPF_CFG_2100HZ_NOLPF;
+	}
+	mpu_spi_write_checked_reg(MPUREG_CONFIG, filter);
+}
+
+static int MPU6000_reset(void)
+{
+	mpu_spi_write(MPUREG_PWR_MGMT_1, BIT_H_RESET);
 
 	// 10msec delay seems to be needed for AUAV3 (MW's prototype)
 	delay_ms(10);
 
 	// Wake up device and select GyroZ clock (better performance)
-	writeMPUSPIreg16(MPUREG_PWR_MGMT_1, MPU_CLK_SEL_PLLGYROZ);
+	mpu_spi_write(MPUREG_PWR_MGMT_1, MPU_CLK_SEL_PLLGYROZ);
 
 	// Disable I2C bus (recommended on datasheet)
-	writeMPUSPIreg16(MPUREG_USER_CTRL, BIT_I2C_IF_DIS);
+	mpu_spi_write(MPUREG_USER_CTRL, BIT_I2C_IF_DIS);
 
 	// SAMPLE RATE
-	writeMPUSPIreg16(MPUREG_SMPLRT_DIV, 4); // Sample rate = 200Hz  Fsample= 1Khz/(N+1) = 200Hz
+	mpu_spi_write(MPUREG_SMPLRT_DIV, 4); // Sample rate = 200Hz  Fsample= 1Khz/(N+1) = 200Hz
 
 	// scaling & DLPF
-	writeMPUSPIreg16(MPUREG_CONFIG, BITS_DLPF_CFG_42HZ);
+	mpu_spi_write(MPUREG_CONFIG, BITS_DLPF_CFG_42HZ);
 
-//	writeMPUSPIreg16(MPUREG_GYRO_CONFIG, BITS_FS_2000DPS);  // Gyro scale 2000º/s
-	writeMPUSPIreg16(MPUREG_GYRO_CONFIG, BITS_FS_500DPS); // Gyro scale 500º/s
+//	mpu_spi_write(MPUREG_GYRO_CONFIG, BITS_FS_2000DPS);  // Gyro scale 2000º/s
+	mpu_spi_write(MPUREG_GYRO_CONFIG, BITS_FS_500DPS); // Gyro scale 500º/s
 
 #if (ACCEL_RANGE == 2)
-	writeMPUSPIreg16(MPUREG_ACCEL_CONFIG, BITS_FS_2G); // Accel scele 2g, g = 8192
+	mpu_spi_write(MPUREG_ACCEL_CONFIG, BITS_FS_2G); // Accel scele 2g, g = 8192
 #elif (ACCEL_RANGE == 4)
-	writeMPUSPIreg16(MPUREG_ACCEL_CONFIG, BITS_FS_4G); // Accel scale g = 4096
+	mpu_spi_write(MPUREG_ACCEL_CONFIG, BITS_FS_4G); // Accel scale g = 4096
 #elif (ACCEL_RANGE == 8)
-	writeMPUSPIreg16(MPUREG_ACCEL_CONFIG, BITS_FS_8G); // Accel scale g = 2048
+	mpu_spi_write(MPUREG_ACCEL_CONFIG, BITS_FS_8G); // Accel scale g = 2048
 #else
 #error "Invalid ACCEL_RANGE"
 #endif
@@ -116,63 +176,55 @@ void MPU6000_init16(callback_fptr_t fptr)
 #if 0
 	// Legacy from Mark Whitehorn's testing, we might need it some day.
 	// SAMPLE RATE
-	writeMPUSPIreg16(MPUREG_SMPLRT_DIV, 7); // Sample rate = 1KHz  Fsample= 8Khz/(N+1)
+	mpu_spi_write(MPUREG_SMPLRT_DIV, 7); // Sample rate = 1KHz  Fsample= 8Khz/(N+1)
 
 	// no DLPF, gyro sample rate 8KHz
-	writeMPUSPIreg16(MPUREG_CONFIG, BITS_DLPF_CFG_256HZ_NOLPF2);
+	mpu_spi_write(MPUREG_CONFIG, BITS_DLPF_CFG_256HZ_NOLPF2);
 
-	writeMPUSPIreg16(MPUREG_GYRO_CONFIG, BITS_FS_500DPS); // Gyro scale 500º/s
+	mpu_spi_write(MPUREG_GYRO_CONFIG, BITS_FS_500DPS); // Gyro scale 500º/s
 
-//	writeMPUSPIreg16(MPUREG_ACCEL_CONFIG, BITS_FS_2G); // Accel scale 2g, g = 16384
-	writeMPUSPIreg16(MPUREG_ACCEL_CONFIG, BITS_FS_4G); // Accel scale g = 8192
-//	writeMPUSPIreg16(MPUREG_ACCEL_CONFIG, BITS_FS_8G); // Accel scale g = 4096
+//	mpu_spi_write(MPUREG_ACCEL_CONFIG, BITS_FS_2G); // Accel scale 2g, g = 16384
+	mpu_spi_write(MPUREG_ACCEL_CONFIG, BITS_FS_4G); // Accel scale g = 8192
+//	mpu_spi_write(MPUREG_ACCEL_CONFIG, BITS_FS_8G); // Accel scale g = 4096
 #endif
 
 	// INT CFG => Interrupt on Data Ready, totem-pole (push-pull) output
-	writeMPUSPIreg16(MPUREG_INT_PIN_CFG, BIT_INT_LEVEL | BIT_INT_RD_CLEAR); // INT: Clear on any read
-	writeMPUSPIreg16(MPUREG_INT_ENABLE, BIT_DATA_RDY_EN); // INT: Raw data ready
-
-// Bump the SPI clock up towards 20 MHz for ongoing sensor and interrupt register reads
-// 20 MHz is the maximum specified for the MPU-6000
-// however 9 MHz is the maximum specified for the dsPIC33EP
-// Primary prescaler options   1:1/4/16/64
-// Secondary prescaler options 1:1 to 1:8
-#if (MIPS == 70)
-	// set prescaler for FCY/32 = 2.2 MHz at 70MIPS
-	initMPUSPI_master16(SEC_PRESCAL_2_1, PRI_PRESCAL_16_1);
-#elif (MIPS == 64)
-	// set prescaler for FCY/8 = 8 MHz at 64 MIPS
-	initMPUSPI_master16(SEC_PRESCAL_2_1, PRI_PRESCAL_4_1);
-#elif (MIPS == 40)
-	// UDB5 only
-	// set prescaler for FCY/5 = 8 MHz at 40MIPS
-	initMPUSPI_master16(SEC_PRESCAL_5_1, PRI_PRESCAL_1_1);
-#elif (MIPS == 32)
-	// set prescaler for FCY/4 = 8 MHz at 32 MIPS
-	initMPUSPI_master16(SEC_PRESCAL_1_1, PRI_PRESCAL_4_1);
-#elif (MIPS == 16)
-	// set prescaler for FCY/2 = 8 MHz at 16 MIPS
-	initMPUSPI_master16(SEC_PRESCAL_2_1, PRI_PRESCAL_1_1);
-#else
-#error Invalid MIPS Configuration
-#endif // MIPS
-
-	_TRISMPUINT = 1; // this is probably already taken care of in mcu.c for most boards
-
-#if (MPU_SPI == 1)
-	_INT1EP = 1; // Setup INT1 pin to interrupt on falling edge
-	_INT1IP = INT_PRI_INT1;
-	_INT1IF = 0; // Reset INT1 interrupt flag
-	_INT1IE = 1; // Enable INT1 Interrupt Service Routine 
-#elif (MPU_SPI == 2)
-	_INT3EP = 1; // Setup INT3 pin to interrupt on falling edge
-	_INT3IP = INT_PRI_INT3;
-	_INT3IF = 0; // Reset INT3 interrupt flag
-	_INT3IE = 1; // Enable INT3 Interrupt Service Routine 
-#endif
+	mpu_spi_write(MPUREG_INT_PIN_CFG, BIT_INT_LEVEL | BIT_INT_RD_CLEAR); // INT: Clear on any read
+	mpu_spi_write(MPUREG_INT_ENABLE, BIT_DATA_RDY_EN); // INT: Raw data ready
+	return 0;
 }
 
-static void process_MPU_data(void)
+int MPU6000_probe(void)
+{
+	uint8_t whoami;
+	whoami = mpu_spi_read(MPUREG_WHOAMI);
+	if (whoami != MPU_WHOAMI_6000) {
+		printf("unexpected WHOAMI 0x%02x\r\n", whoami);
+		return -1;
+
+	}
+	_product = mpu_spi_read(MPUREG_PRODUCT_ID); // verify product revision
+	switch (_product) {
+	case MPU6000ES_REV_C4:
+	case MPU6000ES_REV_C5:
+	case MPU6000_REV_C4:
+	case MPU6000_REV_C5:
+	case MPU6000ES_REV_D6:
+	case MPU6000ES_REV_D7:
+	case MPU6000ES_REV_D8:
+	case MPU6000_REV_D6:
+	case MPU6000_REV_D7:
+	case MPU6000_REV_D8:
+	case MPU6000_REV_D9:
+	case MPU6000_REV_D10:
+		printf("MPU-6000 ID 0x%02x\r\n", _product);
+		return 0;
+	}
+	printf("unexpected ID 0x%02x\r\n", _product);
+	return -2;
+}
+
+void process_MPU_data(uint16_t* mpu_data)
 {
 	mpuDAV = true;
 
@@ -202,42 +254,18 @@ static void process_MPU_data(void)
 #endif // (BOARD_TYPE != UDB4_BOARD && HEARTBEAT_HZ == 200)
 }
 
-static void MPU6000_read(void)
+void MPU6000_init(callback_fptr_t fptr)
 {
-	// burst read guarantees that all registers represent the same sample interval
-	mpuCnt++;
-	// Non-blocking read of 7 words of data from MPU, starting with X acceleration, and then call process_MPU_data
-	readMPUSPI_burst16n(mpu_data, 7, MPUREG_ACCEL_XOUT_H, &process_MPU_data);
-}
+	callback = fptr;
 
-#if (MPU_SPI == 1)
-void __attribute__((interrupt, no_auto_psv)) _INT1Interrupt(void)
-{
-	_INT1IF = 0; // Clear the INT1 interrupt flag
-	indicate_loading_inter;
-	interrupt_save_set_corcon;
-	MPU6000_read();
-	interrupt_restore_corcon;
-}
-#elif (MPU_SPI == 2)
-void __attribute__((interrupt, no_auto_psv)) _INT3Interrupt(void)
-{
-	_INT3IF = 0; // Clear the INT3 interrupt flag
-	indicate_loading_inter;
-	interrupt_save_set_corcon;
-	MPU6000_read();
-	interrupt_restore_corcon;
-}
-#else
-#error("invalid selection for MPU SPI port, must be 1 or 2")
-#endif
+	mpu_spi_init(NULL); // open SPI in low speed for register access
 
-// Used for debugging:
-void MPU6000_print(void)
-{
-	printf("%06u axyz %06i %06i %06i gxyz %06i %06i %06i t %u\r\n",
-	    mpuCnt,      mpu_data[0], mpu_data[1], mpu_data[2], 
-	    mpu_data[4], mpu_data[5], mpu_data[6], mpu_data[3]);
+	// need at least 60 msec delay here
+	delay_ms(60);
+
+	MPU6000_probe();
+	while (MPU6000_reset()) { }
+	mpu_spi_init(&process_MPU_data); // open the SPI in high speed for ongoing callback operation
 }
 
 #endif // (BOARD_TYPE != UDB4_BOARD)

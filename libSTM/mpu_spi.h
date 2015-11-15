@@ -60,27 +60,10 @@
 #error "Only BOARD_TYPEs UDB5, UDB4 and AUAV3 supported"
 #endif
 
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_spi.h"
 
-// initialize SPI in master mode, 16 bit
-void initMPUSPI_master16(uint16_t, uint16_t);
-
-// 16 bit SPI blocking write
-//HAL_StatusTypeDef writeMPUSPIreg16(uint8_t addr, uint8_t data);
-
-// 16 bit SPI blocking read
-//uint16_t readMPUSPIreg16(uint16_t addr);
-
-// n-word, non-blocking SPI read, followed by call_back
-//void readMPUSPI_burst16n(uint16_t data[], int16_t n, uint16_t addr, void (*call_back)(void));
-
-uint8_t read_reg(uint8_t reg);
-void write_reg(uint8_t reg, uint8_t value);
-void write_checked_reg(uint8_t reg, uint8_t value);
-
-// proposed new function names to be used for all builds
-uint8_t mpu_spi_read(uint8_t reg);
-void mpu_spi_write(uint8_t reg, uint8_t value);
+void mpu_spi_init(void (*call_back)(uint16_t*));
+uint8_t mpu_spi_read(uint8_t addr);
+void mpu_spi_write(uint8_t addr, uint8_t data);
+void mpu_spi_write_checked_reg(uint8_t addr, uint8_t data);
 
 #endif // MPU_SPI_H
