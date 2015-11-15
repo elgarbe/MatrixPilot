@@ -8,7 +8,6 @@
 
 #include "../libUDB/libUDB.h"
 //#include "libUDB.h"
-
 #include "../libUDB/uart.h"
 #include "usart.h"
 
@@ -16,9 +15,6 @@
 //#include "cmsis_os.h"
 
 #include <stdio.h>
-//#include <stdint.h>
-//#include <stdlib.h>
-//#include <string.h>
 
 
 uint8_t buffered_char = 0;
@@ -110,6 +106,11 @@ char IsPressed(void)
 	}
 
 	return 0;
+}
+
+void ClrError(void)
+{
+//	if (U##x##STAbits.OERR) U##x##STAbits.OERR = 0;
 }
 
 char GetChar(void)
