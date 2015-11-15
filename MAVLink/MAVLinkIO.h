@@ -19,8 +19,8 @@
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
 
-#ifndef _MAVLINK_H_
-#define _MAVLINK_H_
+#ifndef _MAVLINKIO_H_
+#define _MAVLINKIO_H_
 
 #define MAVLINK_EXTERNAL_RX_STATUS 1
 
@@ -50,27 +50,9 @@ int16_t mavlink_serial_send(mavlink_channel_t chan, const uint8_t buf[], uint16_
 
 #include "../MAVLink/include/matrixpilot/mavlink.h"
 
-typedef struct mavlink_flag_bits {
-//	uint16_t unused                         : 2;
-	uint16_t mavlink_send_specific_variable : 1;
-	uint16_t mavlink_send_variables         : 1;
-	uint16_t mavlink_send_waypoint_count    : 1;
-	uint16_t mavlink_sending_waypoints      : 1;
-	uint16_t mavlink_receiving_waypoints    : 1;
-	uint16_t mavlink_send_specific_waypoint : 1;
-	uint16_t mavlink_request_specific_waypoint : 1;
-	uint16_t mavlink_send_waypoint_reached  : 1;
-	uint16_t mavlink_send_waypoint_changed  : 1;
-	uint16_t mavlink_ftp                    : 1;
-	uint16_t mavlink_ftp_sending            : 1;
-	uint16_t mavlink_ftp_receiving          : 1;
-} mavlink_flags_t;
-
-extern mavlink_flags_t mavlink_flags;
-
-//boolean mavlink_check_target(uint8_t target_system, uint8_t target_component);
-
+void MAVLinkIO_init(void);
+void mavlink_callback_received_byte(uint8_t byte);
 void mavlink_output_40hz(void);
 
 
-#endif // _MAVLINK_H_
+#endif // _MAVLINKIO_H_

@@ -26,7 +26,9 @@
 
 #include "mavlink_options.h"
 #include "../MAVLink/include/matrixpilot_mavlink_bridge_header.h"
+#include "../MAVLink/MAVLinkIO.h"
 
+/*
 // Setting MAVLINK_TEST_ENCODE_DECODE to 1, will replace the normal code that sends MAVLink messages with
 // a test suite.  The inserted code will self-test every message type to encode packets, de-code packets,
 // and it will then check that the results match. The code reports a pass rate and fail rate
@@ -47,8 +49,8 @@
 //int16_t mavlink_serial_send(mavlink_channel_t chan, uint8_t buf[], uint16_t len);
 int16_t mavlink_serial_send(mavlink_channel_t chan, const uint8_t buf[], uint16_t len); // RobD
 #endif
-
 #include "../MAVLink/include/matrixpilot/mavlink.h"
+ */
 
 typedef struct mavlink_flag_bits {
 //	uint16_t unused                         : 2;
@@ -68,11 +70,9 @@ typedef struct mavlink_flag_bits {
 
 extern mavlink_flags_t mavlink_flags;
 
-//boolean mavlink_check_target(uint8_t target_system, uint8_t target_component);
-
-void mavlink_input_byte(uint8_t byte);
-void mavlink_output_40hz(void);
-
 void mavlink_init(void);
+void mavlink_output_40hz_handler(void);
+void mavlink_input_msg(mavlink_message_t* handle_msg);
+//boolean mavlink_check_target(uint8_t target_system, uint8_t target_component);
 
 #endif // _MAVLINK_H_
