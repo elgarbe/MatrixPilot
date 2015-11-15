@@ -6,5 +6,5 @@ TARGET_TYPE := hex
 CPU := 33EP512MU810
 
 modules += libUDB libVectorMatrix libFlashFS Microchip
-incpath += Microchip Microchip/Include libVectorMatrix
+incpath += Microchip Microchip/Include libFlashFS libVectorMatrix
 #cfgpath := Config
