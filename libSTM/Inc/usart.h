@@ -61,6 +61,10 @@ void MX_USART2_UART_Init(void);
 void MX_USART6_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+void* com_open_r(const char* path, int flags, int mode);
+int com_close_r(void* dev);
+long com_write_r(const void* dev, const char* ptr, int len);
+long com_read_r(const void* dev, char* ptr, int len);
 
 /* USER CODE END Prototypes */
 
