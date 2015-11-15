@@ -18,7 +18,7 @@ int FSInit(void)
 {
 	return 1;
 }
-
+/*
 FSFILE* FSfopen(const char* fileName, const char* mode)
 {
 //	printf("opening logfile %s\r\n", fileName);
@@ -34,6 +34,5 @@ size_t FSfwrite(const void* data_to_write, size_t size, size_t n, FSFILE* stream
 {
 	return fwrite(data_to_write, size, n, stream);
 }
-
-
+ */
 #endif // (WIN == 1 || NIX == 1)
