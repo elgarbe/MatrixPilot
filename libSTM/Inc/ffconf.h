@@ -46,7 +46,7 @@
 /  1: Enable without LF-CRLF conversion.
 /  2: Enable with LF-CRLF conversion. */
 
-#define _USE_FIND            0
+#define _USE_FIND            1
 /* This option switches filtered directory read feature and related functions,
 /  f_findfirst() and f_findnext(). (0:Disable or 1:Enable) */
 
@@ -99,7 +99,8 @@
 /   874  - Thai (OEM, Windows)
 /   1    - ASCII (No extended character. Valid for only non-LFN configuration.) */
 
-#define _USE_LFN     3    /* 0 to 3 */
+//#define _USE_LFN     3    /* 0 to 3 */
+#define _USE_LFN     0    /* 0 to 3 */
 #define _MAX_LFN     255  /* Maximum LFN length to handle (12 to 255) */
 /* The _USE_LFN option switches the LFN feature.
 /
