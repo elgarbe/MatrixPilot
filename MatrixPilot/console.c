@@ -26,6 +26,9 @@
 #include "../libDCM/estAltitude.h"
 #include "../libUDB/uart.h"
 #include "ports_config.h"
+
+#include "../libSTM/filesys.h"
+
 #include <string.h>
 #include <math.h>
 
@@ -34,106 +37,19 @@
 #define LOWORD(a) ((WORD)(a))
 #define HIWORD(a) ((WORD)(((DWORD)(a) >> 16) & 0xFFFF))
 
-void AT45D_FormatFS(void);
-
 typedef struct tagCmds {
 	int index;
 	void (*fptr)(char*);
-//	const char const * cmdstr;
 	const char* cmdstr;
 } cmds_t;
-
 
 int cmdlen = 0;
 char cmdstr[32];
 int show_cpu_load = 0;
 
-
 static void cmd_ver(char* arg)
 {
 	printf("MatrixPilot v0.1, " __TIME__ " " __DATE__ "\r\n");
-}
-
-static void cmd_format(char* arg)
-{
-#if (BOARD_TYPE == AUAV3_BOARD)
-//	printf("formatting dataflash\r\n");
-//	AT45D_FormatFS();
-#endif // BOARD_TYPE
-}
-
-/*
-// Summary: A structure used for searching for files on a device.
-// Description: The SearchRec structure is used when searching for file on a device.  It contains parameters that will be loaded with
-//              file information when a file is found.  It also contains the parameters that the user searched for, allowing further
-//              searches to be perfomed in the same directory for additional files that meet the specified criteria.
-typedef struct
-{
-    char            filename[FILE_NAME_SIZE_8P3 + 2];   // The name of the file that has been found
-    unsigned char   attributes;                     // The attributes of the file that has been found
-    unsigned long   filesize;                       // The size of the file that has been found
-    unsigned long   timestamp;                      // The last modified time of the file that has been found (create time for directories)
-	#ifdef SUPPORT_LFN
-		BOOL			AsciiEncodingType;          // Ascii file name or Non-Ascii file name indicator
-		unsigned short int *utf16LFNfound;		    // Pointer to long file name found in UTF16 format
-		unsigned short int utf16LFNfoundLength;     // LFN Found length in terms of words including the NULL word at the last.
-	#endif
-    unsigned int    entry;                          // The directory entry of the last file found that matches the specified attributes. (Internal use only)
-    char            searchname[FILE_NAME_SIZE_8P3 + 2]; // The 8.3 format name specified when the user began the search. (Internal use only)
-    unsigned char   searchattr;                     // The attributes specified when the user began the search. (Internal use only)
-    unsigned long   cwdclus;                        // The directory that this search was performed in. (Internal use only)
-    unsigned char   initialized;                    // Check to determine if the structure was initialized by FindFirst (Internal use only)
-} SearchRec;
- */
-static void cmd_dir(char* arg)
-{
-/*
-#if defined(__XC16__)
-#if (SILSIM == 0)
-#if (USE_TELELOG == 1 || USE_CONFIGFILE == 1)
-	SearchRec rec;
-	char* fileName = "*.*";
-
-//int FindFirst(const char* fileName, unsigned int attr, SearchRec* rec);
-//int FindNext(SearchRec* rec);
-
-	if (arg != NULL) {
-		fileName = arg;
-	}
-	if (FindFirst(fileName, ATTR_MASK, &rec) != -1) {
-		do {
-			printf("%s\r\n", rec.filename);
-		} while (FindNext(&rec) != -1);
-	}
-#endif
-#endif // SILSIM
-#endif // __XC16__
- */
-}
-
-//size_t FSfread(void *ptr, size_t size, size_t n, FSFILE *stream);
-static void cmd_cat(char* arg)
-{
-/*
-#if defined(__XC16__)
-#if (SILSIM == 0)
-#if (USE_TELELOG == 1 || USE_CONFIGFILE == 1)
-	char buf[2];
-	FSFILE* fp;
-
-	printf("cmd_cat(%s)\r\n", arg);
-
-	fp = FSfopen(arg, "r");
-	if (fp != NULL) {
-		while (FSfread(buf, 1, sizeof(char), fp) == 1) {
-			printf("%c", buf[0]);
-		}
-		FSfclose(fp);
-	}
-#endif
-#endif // SILSIM
-#endif // __XC16__
- */
 }
 
 static void cmd_start(char* arg)
@@ -294,10 +210,10 @@ static void cmd_uart(char* arg)
 	printf("\tU1BRG  = %s\r\n", word_to_binary(U1BRG));
 #else
 #if (PX4 == 1)
-	printf("sending test data to uart 6... ");
-void Test_HAL_UART_Transmit_IT(void);
-	Test_HAL_UART_Transmit_IT();
-	printf("done.\r\n");
+//	printf("sending test data to uart 6... ");
+//void Test_HAL_UART_Transmit_IT(void);
+//	Test_HAL_UART_Transmit_IT();
+//	printf("done.\r\n");
 #endif
 #endif
 }
@@ -463,9 +379,6 @@ static void cmd_gps(char* arg)
 const cmds_t cmdslist[] = {
 	{ 0, cmd_help,   "help" },
 	{ 0, cmd_ver,    "ver" },
-	{ 0, cmd_dir,    "dir" },
-	{ 0, cmd_cat,    "cat" },
-	{ 0, cmd_format, "format" },
 	{ 0, cmd_start,  "start" },
 	{ 0, cmd_stop,   "stop" },
 	{ 0, cmd_on,     "on" },
@@ -488,6 +401,11 @@ const cmds_t cmdslist[] = {
 	{ 0, cmd_nav,    "nav" },
 	{ 0, cmd_gps,    "gps" },
 	{ 0, cmd_uart,   "uart" },
+#if (USE_FILESYS == 1)
+	{ 0, filesys_dir,    "dir" },
+	{ 0, filesys_cat,    "cat" },
+	{ 0, filesys_format, "format" },
+#endif // (USE_FILESYS == 1)
 };
 
 static void cmd_help(char* arg)
