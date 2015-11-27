@@ -67,7 +67,8 @@
 
 int16_t udb_pwOut[NUM_OUTPUTS+1];   // pulse widths for servo outputs
 static volatile int16_t outputNum;
-//extern TIM_HandleTypeDef htim3;    // TIM base for PWM CH1 to CH4
+extern TIM_HandleTypeDef htim3;    // TIM base for PWM CH1 to CH4
+extern TIM_HandleTypeDef htim4;    // TIM base for PWM CH5 to CH6
 
 // initialize the PWM
 void servoOut_init(void) // was called udb_init_pwm()
@@ -112,51 +113,24 @@ void udb_set_action_state(boolean newValue)
 // Call this to start sending out pulses to all the PWM output channels sequentially
 void start_pwm_outputs(void)
 {
-//	if (NUM_OUTPUTS > 0)
-//	{
-//
-//	}
-
-    /*##-3- Start PWM signals generation #######################################*/
-    /* Start channel 1 */
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-    /* Start channel 1 */
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-    /* Start channel 1 */
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-    /* Start channel 1 */
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+	if (NUM_OUTPUTS > 0){HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);}
+	if (NUM_OUTPUTS > 1){HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);}
+	if (NUM_OUTPUTS > 2){HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);}
+	if (NUM_OUTPUTS > 3){HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);}
+	if (NUM_OUTPUTS > 4){HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);}
+	if (NUM_OUTPUTS > 5){HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);}
 }
 
 
 // Call this to start sending out pulses to all the PWM output channels sequentially
 void set_pwm_outputs(uint16_t* pw)
 {
-    TIM_OC_InitTypeDef sConfigOC;
+    // i have to use __HAL_TIM_SetCompare(&htimX, TIM_CHANNEL_X, pwm)
 
-  sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-
-  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_LOW;
-  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
-
-    //TODO: I need to check pw measurement because I need to divide by 2 again here
-    //NOTE: I don't be sure that this is the correct way to update duty cycle.
-    sConfigOC.Pulse = pw[0]/2;
-    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-
-    sConfigOC.Pulse = pw[1]/2;
-    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-
-    sConfigOC.Pulse = pw[2]/2;
-    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3);
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-
-    sConfigOC.Pulse = pw[3]/2;
-    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4);
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+	if (NUM_OUTPUTS > 0){__HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_1, pw[0]/2);}
+	if (NUM_OUTPUTS > 1){__HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_2, pw[1]/2);}
+	if (NUM_OUTPUTS > 2){__HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_3, pw[2]/2);}
+	if (NUM_OUTPUTS > 3){__HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_4, pw[3]/2);}
+	if (NUM_OUTPUTS > 4){__HAL_TIM_SetCompare(&htim4, TIM_CHANNEL_3, pw[4]/2);}
+	if (NUM_OUTPUTS > 5){__HAL_TIM_SetCompare(&htim4, TIM_CHANNEL_4, pw[5]/2);}
 }

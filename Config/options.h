@@ -229,7 +229,7 @@
 // For UDB4/5 boards: Set to 3-8 (or up to 10 using pins RA4 and RA1.)
 // For AUAV3 boards:  Set to 3-8 (or up to 11 using pins RE1, RA6 and RA7.)
 //                               (this needs developing, so contact the list)
-#define NUM_OUTPUTS                         4
+#define NUM_OUTPUTS                         6
 
 // Channel numbers for each output
 // Use as is, or edit to match your setup.
@@ -345,7 +345,7 @@
 // SERIAL_CAM_TRACK is used to output location data to a 2nd UDB, which will target its camera at this plane.
 // SERIAL_UDB_MAG outputs the automatically calculated offsets and raw magnetometer data.
 
-// 
+//
 // SERIAL_MAVLINK has been deprecated. Define USE_MAVLINK to enable
 // SERIAL_MAVLINK is a bi-directional binary format for use with QgroundControl, HKGCS or MAVProxy (Ground Control Stations.)
 // Note that SERIAL_MAVLINK defaults to using a baud rate of 57600 baud (other formats default to 19200)
