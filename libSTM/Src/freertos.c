@@ -175,7 +175,7 @@ void StartDefaultTask(void const * argument)
   MX_FATFS_Init();
 
   /* USER CODE BEGIN StartDefaultTask */
-	DPRINT("StartDefaultTask: %p\r\n", argument);
+//	DPRINT("StartDefaultTask: %p\r\n", argument);
 void _StartDefaultTask(void const * argument);
 	_StartDefaultTask(argument);
   /* USER CODE END StartDefaultTask */
@@ -192,7 +192,7 @@ void StartTaskGPS(void const * argument)
 {
   /* USER CODE BEGIN StartTaskGPS */
 	(void)argument;
-	DPRINT("StartTaskGPS\r\n");
+//	DPRINT("StartTaskGPS\r\n");
 	for(;;)
 	{
 		osSemaphoreWait(osSemaphoreGPSHandle, osWaitForever);
@@ -207,7 +207,7 @@ void StartTaskIMU(void const * argument)
 {
   /* USER CODE BEGIN StartTaskIMU */
 	led_on(LED_ORANGE);
-	DPRINT("StartTaskIMU\r\n");
+//	DPRINT("StartTaskIMU\r\n");
 	for(;;)
 	{
 		static int i = 0;
@@ -222,12 +222,12 @@ void StartTaskIMU(void const * argument)
 		{
 			// timeout
 		}
-		if (i++ > 0)
+		if (i++ > 100)
 		{
 			i = 0;
+			udb_led_toggle(LED_ORANGE);
 //			DPRINT("#");
 		}
-		udb_led_toggle(LED_ORANGE);
 //		udb_led_toggle(LED_BLUE);  // blue led not working?
 	}
   /* USER CODE END StartTaskIMU */

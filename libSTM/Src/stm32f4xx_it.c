@@ -37,6 +37,7 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN 0 */
+void HAL_UART_IRQHandler_ALWAYS_RECIEVE(UART_HandleTypeDef *huart);
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -192,11 +193,17 @@ void SPI2_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-
+#ifdef USE_HAL_UART_IRQ
   /* USER CODE END USART1_IRQn 0 */
-  MP_UART_IRQHandler(&huart1);
+  HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
+#else
+//  MP_UART_IRQHandler(&huart1);
+  HAL_NVIC_ClearPendingIRQ(USART1_IRQn);
+  HAL_UART_IRQHandler_ALWAYS_RECIEVE(&huart1);
+  return;
 
+#endif
   /* USER CODE END USART1_IRQn 1 */
 }
 
@@ -206,12 +213,14 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-#if 1
+#ifdef USE_HAL_UART_IRQ
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
 #else
-  MP_UART_IRQHandler(&huart2);
+//  MP_UART_IRQHandler(&huart2);
+  HAL_NVIC_ClearPendingIRQ(USART2_IRQn);
+  HAL_UART_IRQHandler_ALWAYS_RECIEVE(&huart2);
 #endif
   /* USER CODE END USART2_IRQn 1 */
 }
@@ -250,12 +259,14 @@ void TIM5_IRQHandler(void)
 void USART6_IRQHandler(void)
 {
   /* USER CODE BEGIN USART6_IRQn 0 */
-#if 1
+#ifdef USE_HAL_UART_IRQ
   /* USER CODE END USART6_IRQn 0 */
   HAL_UART_IRQHandler(&huart6);
   /* USER CODE BEGIN USART6_IRQn 1 */
 #else
-  MP_UART_IRQHandler(&huart6);
+//  MP_UART_IRQHandler(&huart6);
+  HAL_NVIC_ClearPendingIRQ(USART6_IRQn);
+  HAL_UART_IRQHandler_ALWAYS_RECIEVE(&huart6);
 #endif
   /* USER CODE END USART6_IRQn 1 */
 }

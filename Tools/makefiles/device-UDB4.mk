@@ -5,7 +5,7 @@ TARGET_TYPE := hex
 CPU := 33FJ256GP710A
 
 modules += libUDB libVectorMatrix libFlashFS Microchip
-incpath += Microchip Microchip/Include libVectorMatrix
+incpath += Microchip Microchip/Include libFlashFS libVectorMatrix
 #cfgpath := Config
 
 # mod_list

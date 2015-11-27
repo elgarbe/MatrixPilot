@@ -1,3 +1,5 @@
+/* moved to module syscalls.c
+
 #if defined(__dsPIC33E__)
 #include <p33Exxxx.h>
 #elif defined(__dsPIC33F__)
@@ -81,3 +83,4 @@ write(int handle, void *buffer, unsigned int len)
 	}
 	return len;
 }
+ */

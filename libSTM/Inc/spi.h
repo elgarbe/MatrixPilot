@@ -56,6 +56,10 @@ void MX_SPI1_Init(void);
 void MX_SPI2_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+void* spi_open_r(const char* path, int flags, int mode);
+int spi_close_r(void* dev);
+long spi_write_r(const void* dev, const char* ptr, int len);
+long spi_read_r(const void* dev, char* ptr, int len);
 
 /* USER CODE END Prototypes */
 

@@ -15,10 +15,17 @@
 #include <reent.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <stdlib.h> // for malloc
 
 #include "stm32f4xx_hal.h"
+#include "fatfs.h"
 #include "usart.h"
+#include "spi.h"
+#include "i2c.h"
 #include "uart.h" // ../libUDB/uart.h
+
+#include "filesys.h"
+#include "assert.h"
 
 #undef errno
 extern int errno;
@@ -33,9 +40,6 @@ extern int __io_getchar(void) __attribute__((weak));
   register char * stack_ptr asm("sp");
 #endif
 
-
-
-
 caddr_t _sbrk(int incr)
 {
 	extern char end asm("end");
@@ -44,15 +48,12 @@ caddr_t _sbrk(int incr)
 
 	if (heap_end == 0)
 		heap_end = &end;
-
 	prev_heap_end = heap_end;
-
 #ifdef FreeRTOS
 	/* Use the NVIC offset register to locate the main stack pointer. */
 	min_stack_ptr = (char*)(*(unsigned int *)*(unsigned int *)0xE000ED08);
 	/* Locate the STACK bottom address */
 	min_stack_ptr -= MAX_STACK_SIZE;
-
 	if (heap_end + incr > min_stack_ptr)
 #else
 	if (heap_end + incr > stack_ptr)
@@ -63,9 +64,7 @@ caddr_t _sbrk(int incr)
 		errno = ENOMEM;
 		return (caddr_t) -1;
 	}
-
 	heap_end += incr;
-
 	return (caddr_t) prev_heap_end;
 }
 
@@ -99,80 +98,14 @@ int _kill(int pid, int sig)
 	return -1;
 }
 
-void _exit (int status)
+void _exit(int status)
 {
 	_kill(status, -1);
 	while (1) {}
 }
 
-#if 0
-UART_HandleTypeDef UartHandle;
-
-void init_uart_stdio(unsigned long baud)
-{
-	/*##-1- Configure the UART peripheral ######################################*/
-	/* Put the USART peripheral in the Asynchronous mode (UART Mode) */
-	/* UARTx configured as follow:
-		- Word Length = 8 Bits
-		- Stop Bit = One Stop bit
-		- Parity = None
-		- BaudRate = 9600 baud
-		- Hardware flow control disabled (RTS and CTS signals) */
-	UartHandle.Instance        = UART2;
-	UartHandle.Init.BaudRate   = baud;
-	UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
-	UartHandle.Init.StopBits   = UART_STOPBITS_1;
-	UartHandle.Init.Parity     = UART_PARITY_NONE;
-	UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
-	UartHandle.Init.Mode       = UART_MODE_TX_RX;
-
-	if (HAL_UART_Init(&UartHandle) != HAL_OK)
-	{
-//		Error_Handler();
-	}
-}
-#endif
-
 int trap_handling = 0;
-/*
-int _read(int file, char *ptr, int len) {
-    int n;
-    int num = 0;
-    switch (file) {
-    case STDIN_FILENO:
-        for (n = 0; n < len; n++) {
-            char c = Usart1Get();
-            *ptr++ = c;
-            num++;
-        }
-        break;
-    default:
-        errno = EBADF;
-        return -1;
-    }
-    return num;
-}
 
-int _write(int file, char *ptr, int len) {
-    int n;
-    switch (file) {
-    case STDOUT_FILENO: // stdout
-        for (n = 0; n < len; n++) {
-            Usart1Put(*ptr++ & (uint16_t)0x01FF);
-        }
-        break;
-    case STDERR_FILENO: // stderr
-        for (n = 0; n < len; n++) {
-            Usart1Put(*ptr++ & (uint16_t)0x01FF);
-        }
-        break;
-    default:
-        errno = EBADF;
-        return -1;
-    }
-    return len;
-}
- */
 void _out(char ch)
 {
 	if (trap_handling)
@@ -185,59 +118,124 @@ void _out(char ch)
 	}
 }
 
-int _write(int file, char *ptr, int len)
-{
-#if 1
-    switch (file) {
-    case STDOUT_FILENO: // stdout
-		if (HAL_UART_Transmit(&UART_CON, (uint8_t *)ptr, len, 0xFFFF) !=  HAL_OK)
-		{
-//			Error_Handler();
-		}
-        break;
-    case STDERR_FILENO: // stderr
-		if (HAL_UART_Transmit(&UART_CON, (uint8_t *)ptr, len, 0xFFFF) !=  HAL_OK)
-		{
-//			Error_Handler();
-		}
-        break;
-    default:
-        errno = EBADF;
-        return -1;
-    }
-#else
-    int n;
-    switch (file) {
-    case STDOUT_FILENO: // stdout
-        for (n = 0; n < len; n++) {
-//            Usart1Put(*ptr++ & (uint16_t)0x01FF);
-			_out(*ptr++);
-        }
-        break;
-    case STDERR_FILENO: // stderr
-        for (n = 0; n < len; n++) {
-//            Usart1Put(*ptr++ & (uint16_t)0x01FF);
-			_out(*ptr++);
-        }
-        break;
-    default:
-        errno = EBADF;
-        return -1;
-    }
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-#endif
-	return len;
+typedef struct {
+	const char* name;
+	void* (*open_r)(const char* path, int flags, int mode);
+	int (*close_r)(void* dev);
+	long (*write_r)(const void* dev, const char* ptr, int len);
+	long (*read_r)(const void* dev, char* ptr, int len);
+} devoptab_t;
+
+const devoptab_t devoptab_com = { "com", com_open_r, com_close_r, com_write_r, com_read_r };
+const devoptab_t devoptab_spi = { "spi", spi_open_r, spi_close_r, spi_write_r, spi_read_r };
+const devoptab_t devoptab_i2c = { "i2c", i2c_open_r, i2c_close_r, i2c_write_r, i2c_read_r };
+const devoptab_t devoptab_fil = { "fil", fil_open_r, fil_close_r, fil_write_r, fil_read_r };
+
+typedef struct {
+	const char* name;
+	const devoptab_t* devoptab;
+	void* deveopdata;
+} devtab_t;
+
+devtab_t devtab_list[] = {
+	{ "stdin",  &devoptab_com, &UART_CON, }, // standard input
+	{ "stdout", &devoptab_com, &UART_CON, }, // standard output
+	{ "stderr", &devoptab_com, &UART_CON, }, // standard error
+	{ "com1",   &devoptab_com, &huart1, }, // serial port com1
+	{ "com2",   &devoptab_com, &huart2, }, // serial port com2
+	{ "com6",   &devoptab_com, &huart6, }, // serial port com6
+	{ "spi1",   &devoptab_spi, &hspi1, },  // spi bus 1
+	{ "spi2",   &devoptab_spi, &hspi2, },  // spi bus 2
+	{ "i2c1",   &devoptab_i2c, &hi2c1, },  // i2c bus 1
+	{ "i2c3",   &devoptab_i2c, &hi2c3, },  // i2c bus 3
+	{ NULL,     &devoptab_fil, NULL, },    // file handle 1
+	{ NULL,     &devoptab_fil, NULL, },    // file handle 2
+	{ NULL,     &devoptab_fil, NULL, },    // file handle 3
+	{ NULL,     0,             NULL, }     // terminate list
+};
+
+int _open(char *path, int flags, int mode)
+{
+	int i = 0;
+	int fh = -1;
+
+	do {
+		if (devtab_list[i].name != NULL) {
+			if (strcmp(devtab_list[i].name, path) == 0) {
+//				fh = i;
+				break;
+			}
+		} else {
+			if (devtab_list[i].deveopdata == NULL) {
+//				fh = i;
+				break;
+			}
+		}
+	} while (devtab_list[++i].devoptab);
+
+	if (devtab_list[i].devoptab) {
+		devtab_list[i].deveopdata = devtab_list[i].devoptab->open_r(path, flags, mode);
+		if (devtab_list[i].deveopdata) {
+			fh = i;
+		}
+	} else {
+		errno = ENODEV;
+	}
+/*
+	if (fh != -1) {
+		void* dev = devtab_list[fh].devoptab;
+		if (dev != NULL) {
+			devtab_list[fh].deveopdata = devtab_list[fh].devoptab->open_r(path, flags, mode);
+			if (devtab_list[fh].deveopdata == NULL) {
+				fh = -1;
+			}
+		} else {
+			fh = -1;
+		}
+	} else {
+		errno = ENODEV;
+	}
+ */
+	return fh;
 }
 
-int _close(int file)
+/*
+ The normal return value from close is 0; a value of -1 is returned in case of failure.
+ The following errno error conditions are defined for this function:
+  EBADF: The argument is not a valid file descriptor.
+ */
+int _close(int fh)
 {
-	return -1;
+	int res;
+	assert(fh < sizeof(devtab_list)/sizeof(devtab_list[0]));
+	res = devtab_list[fh].devoptab->close_r(devtab_list[fh].deveopdata);
+	devtab_list[fh].deveopdata = NULL;
+	return res;
 }
+
+int _write(int fh, char *ptr, int len)
+{
+	assert(fh < sizeof(devtab_list)/sizeof(devtab_list[0]));
+	return devtab_list[fh].devoptab->write_r(devtab_list[fh].deveopdata, ptr, len);
+}
+
+int _read(int fh, char *ptr, int len)
+{
+	assert(fh < sizeof(devtab_list)/sizeof(devtab_list[0]));
+	return devtab_list[fh].devoptab->read_r(devtab_list[fh].deveopdata, ptr, len);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 int _fstat(int file, struct stat *st)
 {
+	FRESULT res = 0;
 	st->st_mode = S_IFCHR;
-	return 0;
+	return res;
 }
 
 int _isatty(int file)
@@ -247,26 +245,12 @@ int _isatty(int file)
 
 int _lseek(int file, int ptr, int dir)
 {
-	return 0;
+	FRESULT res = 0;
+	return res;
 }
 
-int _read(int file, char *ptr, int len)
-{
-	int DataIdx;
-
-	for (DataIdx = 0; DataIdx < len; DataIdx++)
-	{
-	  *ptr++ = __io_getchar();
-	}
-
-   return len;
-}
-
-int _open(char *path, int flags, ...)
-{
-	/* Pretend like we always fail */
-	return -1;
-}
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 int _wait(int *status)
 {

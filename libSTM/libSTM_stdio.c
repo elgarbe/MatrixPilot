@@ -8,7 +8,6 @@
 
 #include "../libUDB/libUDB.h"
 //#include "libUDB.h"
-
 #include "../libUDB/uart.h"
 #include "usart.h"
 
@@ -16,9 +15,6 @@
 //#include "cmsis_os.h"
 
 #include <stdio.h>
-//#include <stdint.h>
-//#include <stdlib.h>
-//#include <string.h>
 
 
 uint8_t buffered_char = 0;
@@ -62,6 +58,30 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 //void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
+	switch (huart->ErrorCode)
+	{
+	case HAL_UART_ERROR_NONE://         ((uint32_t)0x00000000)   // !< No error
+		break;
+	case HAL_UART_ERROR_PE://           ((uint32_t)0x00000001)   // !< Parity error
+		break;
+	case HAL_UART_ERROR_NE://           ((uint32_t)0x00000002)   // !< Noise error
+		break;
+	case HAL_UART_ERROR_FE://           ((uint32_t)0x00000004)   // !< Frame error
+		break;
+	case HAL_UART_ERROR_ORE://          ((uint32_t)0x00000008)   // !< Overrun error
+		break;
+	case HAL_UART_ERROR_DMA://          ((uint32_t)0x00000010)   // !< DMA transfer error
+		break;
+	default:
+		break;
+	}
+	huart->ErrorCode = HAL_UART_ERROR_NONE;
+
+
+	if (huart->ErrorCode != HAL_UART_ERROR_NONE)
+	{
+		huart->ErrorCode = HAL_UART_ERROR_NONE;
+	}
 
 }
 
@@ -84,8 +104,13 @@ char IsPressed(void)
 		buffered_full = 1;
 		return 1;
 	}
-//	if (U##x##STAbits.URXDA)
+
 	return 0;
+}
+
+void ClrError(void)
+{
+//	if (U##x##STAbits.OERR) U##x##STAbits.OERR = 0;
 }
 
 char GetChar(void)
@@ -94,7 +119,6 @@ char GetChar(void)
 	uint8_t Data[2];
 	char Temp;
 //	while (!IsPressed());
-//	Temp = U##x##RXREG;
 
 	if (buffered_full == 1)
 	{

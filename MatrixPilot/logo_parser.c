@@ -176,7 +176,7 @@ static int8_t logo_parse_command(const defs_t* defs, uint8_t size, logoInstructi
 	if (i) {
 		stptok(str, token, sizeof(token), " ,()\t\r\n"); // recover the first token again
 		for (i = 0; i < (sizeof(logo_cmd_list)/sizeof(logo_cmd_list[0])); i++) {
-			if (logo_cmd_list[i].cmd_hash == crc16(token, strlen(token))) {
+			if (logo_cmd_list[i].cmd_hash == crc16((uint8_t*)token, strlen(token))) {
 				if (opcode) {
 					if (next == 0) {
 						*opcode = logo_build_instruction(logo_cmd_list[i].opcode, param1, param2);
@@ -211,7 +211,7 @@ static uint8_t logo_parse(defs_t* defslist, uint8_t* defscnt, logoInstructionDef
 	if (fp) {
 		char ch;
 		uint8_t len = 0;
-		char* line = malloc(MAX_LINE_LEN+1);
+		char* line = (char*)malloc(MAX_LINE_LEN+1);
 		if (line) {
 			while (fread(&ch, 1, sizeof(ch), fp)) {
 				if (ch == '\r' || ch == '\n' || ch == '\0') {
@@ -273,7 +273,7 @@ static defs_t* logo_defines_create(uint8_t* defscnt, const char* define_filename
 	logo_parse(NULL, defscnt, NULL, 0, define_filename);
 	logo_parse(NULL, defscnt, NULL, 0, source_filename);
 	DPRINT("%u defines found\r\n", *defscnt);
-	defslist = calloc(*defscnt, sizeof(defs_t));
+	defslist = (defs_t*)calloc(*defscnt, sizeof(defs_t));
 	*defscnt = 0;
 	if (defslist) {
 		logo_parse(defslist, defscnt, NULL, 0, define_filename);
@@ -315,7 +315,7 @@ logoInstructionDef_t* logo_compile(uint16_t* count, const char* source_filename)
 	*count = logo_parse(NULL, NULL, NULL, 0, source_filename);
 	if (*count != 0) {
 		DPRINT("%u instructions found in %s\r\n", *count, source_filename);
-		logo = calloc(*count, sizeof(logoInstructionDef_t));
+		logo = (logoInstructionDef_t*)calloc(*count, sizeof(logoInstructionDef_t));
 		if (logo) {
 			memset(logo, 0, *count * sizeof(logoInstructionDef_t));
 			if (!(*count = logo_compose(logo, *count, source_filename))) {

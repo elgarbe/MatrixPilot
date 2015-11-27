@@ -123,16 +123,16 @@ void udb_init(void)
 #if (BOARD_TYPE == UDB5_BOARD || BOARD_TYPE == AUAV3_BOARD)
 #if (USE_FREERTOS)
 	void TaskIMU_Trigger(void);
-	MPU6000_init16(&TaskIMU_Trigger);
+	MPU6000_init(&TaskIMU_Trigger);
 #else
-	MPU6000_init16(&heartbeat);
+	MPU6000_init(&heartbeat);
 #endif
 #endif
 
 	SRbits.IPL = 0; // turn on all interrupt priorities
 }
 
-void udb_run(void)
+void udb_run(void) // traditionally only idled or stopped the clock
 {
 #if (USE_MCU_IDLE == 1)
 	Idle();

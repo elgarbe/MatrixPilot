@@ -18,7 +18,7 @@
 *
 ******************************************************************************/
 
-//#if 0
+#if 0
 
 #include "MAX21000.h"
 #include "MAX21000_map.h"
@@ -259,7 +259,7 @@ void init_max2100(void)
 {
 //void init_master16(uint16_t priPre, uint16_t secPre)
 //	init_master16(uint16_t priPre, uint16_t secPre);
-//void MPU6000_init16(void)
+//void MPU6000_init(void)
 	_init16();
 /*
 	SPI2STAT = 0x0;             // disable the SPI module (just in case)
@@ -1732,4 +1732,4 @@ signed char getFifoData_max21000(unsigned char numOfData, unsigned char * dataVe
 */
 	return(err);
 }
-//#endif // 0
+#endif // 0

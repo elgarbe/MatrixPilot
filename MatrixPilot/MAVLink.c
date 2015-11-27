@@ -62,7 +62,7 @@
 #include "../libUDB/serialIO.h"
 #include "../libUDB/servoOut.h"
 #include "../libUDB/ADchannel.h"
-#include "../libUDB/events.h"
+//#include "../libUDB/events.h" // event processing moved to MAVLinkIO.c
 #include "../MatrixPilot/euler_angles.h"
 #include "../MatrixPilot/navigate.h"
 #include "../MatrixPilot/config.h"
@@ -71,30 +71,8 @@
 #include <math.h>
 
 
-#if (MAVLINK_TEST_ENCODE_DECODE == 1)
-mavlink_message_t last_msg;
-#define _ADDED_C_LIB 1 // Needed to get vsnprintf()
-#include <stdio.h>
-#include <stdarg.h>
-#define MAVLINK_TEST_MESSAGE_SIZE 100
-uint8_t mavlink_test_message_buffer[MAVLINK_TEST_MESSAGE_SIZE];
-int16_t mavlink_tests_pass = 0;
-int16_t mavlink_tests_fail = 0;
-char mavlink_test_first_pass_flag = 1;
-mavlink_status_t r_mavlink_status;
-
-#define MAVLINK_ASSERT(exp) \
-	if (!(exp)) \
-	{ \
-		printf("MAVLink Test Fail: " \
-		       "at %s, line %d.\r\n", __FILE__, __LINE__); \
-		mavlink_tests_fail++; \
-	} else { \
-		mavlink_tests_pass++; \
-	}
-
-#include "../MAVLink/include/matrixpilot/testsuite.h"
-#endif // (MAVLINK_TEST_ENCODE_DECODE == 1)
+extern mavlink_status_t r_mavlink_status;
+extern uint8_t handling_of_message_completed;
 
 static uint8_t mavlink_system_status = MAV_STATE_UNINIT;
 mavlink_status_t m_mavlink_status[MAVLINK_COMM_NUM_BUFFERS];
@@ -103,9 +81,6 @@ mavlink_status_t m_mavlink_status[MAVLINK_COMM_NUM_BUFFERS];
 
 mavlink_flags_t mavlink_flags;
 mavlink_system_t mavlink_system;
-
-static uint16_t mavlink_process_message_handle = INVALID_HANDLE;
-static uint8_t handling_of_message_completed = true;
 
 static uint8_t mavlink_counter_40hz = 0;
 static uint64_t usec = 0; // A measure of time in microseconds (should be from Unix Epoch).
@@ -116,19 +91,18 @@ static uint16_t mavlink_command_ack_command = 0;
 static boolean mavlink_send_command_ack = false;
 static uint16_t mavlink_command_ack_result = 0;
 
-static void handleMessage(void);
 #if (USE_NV_MEMORY == 1)
 // callback for when nv memory storage is complete
 inline void preflight_storage_complete_callback(boolean success);
 #endif // (USE_NV_MEMORY == 1)
 
-
 void mavlink_init(void)
 {
 	int16_t index;
 
+	MAVLinkIO_init();
 	mavlink_system_status = MAV_STATE_BOOT;
-	mavlink_process_message_handle = register_event_p(&handleMessage, EVENT_PRIORITY_MEDIUM);
+//	mavlink_process_message_handle = register_event_p(&handleMessage, EVENT_PRIORITY_MEDIUM); // moved to MAVLinkIO_init
 	mavlink_system.sysid = MAVLINK_SYSID; // System ID, 1-255, ID of your Plane for GCS
 //	mavlink_system.compid = 1; // Component/Subsystem ID,  (1-255) MatrixPilot on UDB is component 1.
 	mavlink_system.compid = 0; // Component/Subsystem ID,  (1-255) MatrixPilot on UDB is component 1.
@@ -146,130 +120,9 @@ void mavlink_init(void)
 //	streamRates[MAV_DATA_STREAM_ALTITUDES]      = MAVLINK_RATE_ALTITUDES;
 	streamRates[MAV_DATA_STREAM_EXTRA1]         = MAVLINK_RATE_SUE;
 	streamRates[MAV_DATA_STREAM_EXTRA2]         = MAVLINK_RATE_POSITION_SENSORS;
-
-#ifndef SERIAL_BAUDRATE
-#define SERIAL_BAUDRATE 57600 // default
-#pragma warning "SERIAL_BAUDRATE set to default value of 57600 bps for MAVLink"
-#endif
-	udb_serial_set_rate(SERIAL_BAUDRATE);
 }
 
-void mav_printf(const char* format, ...)
-{
-	char buf[200];
-	va_list arglist;
-
-	va_start(arglist, format);
-	vsnprintf(buf, sizeof(buf), format, arglist);
-	// mavlink_msg_statustext_send(MAVLINK_COMM_1, severity, text);
-	// severity: Severity of status, 0 = info message, 255 = critical fault (uint8_t)
-	mavlink_msg_statustext_send(MAVLINK_COMM_0, 0, buf);
-	va_end(arglist);
-}
-
-#if (MAVLINK_TEST_ENCODE_DECODE == 1)
-// add printf library when running tests to output ascii messages of test results
-static void serial_output(const char* format, ...)
-{
-	int16_t remaining = 0;
-	int16_t wrote = 0;
-	va_list arglist;
-
-	va_start(arglist, format);
-	remaining = MAVLINK_TEST_MESSAGE_SIZE;
-	wrote = vsnprintf((char*)(&mavlink_test_message_buffer[0]), (size_t)remaining, format, arglist);
-	if (wrote > 0)
-	{
-		mavlink_serial_send(MAVLINK_COMM_0, &mavlink_test_message_buffer[0], (uint16_t)wrote);
-//		printf("%s\r\n", mavlink_test_message_buffer);
-	}
-}
-#endif // (MAVLINK_TEST_ENCODE_DECODE == 1)
-
-#if (MAVLINK_TEST_ENCODE_DECODE == 1)
-void mp_mavlink_transmit(uint8_t ch)
-// This is a special version of the routine for testing MAVLink routines
-// The incoming serial stream is parsed to reproduce a mavlink message.
-// This will then be checked against the original message and results recorded
-// using the MAVLINK_ASSERT macro.
-{
-	mavlink_parse_char(0, ch, &last_msg, &r_mavlink_status);
-}
-#else
-void mp_mavlink_transmit(uint8_t ch)
-// routine to send a single character used by MAVlink standard include routines.
-// We forward to multi-byte sending routine so that firmware can interleave
-// ascii debug messages with MAVLink binary messages without them overwriting the buffer.
-{
-//printf("mp_mavlink_transmit(%u)\r\n", ch);
-	mavlink_serial_send(MAVLINK_COMM_0, &ch, 1);
-}
-#endif
-
-void send_text(uint8_t text[])
-{
-	uint16_t index = 0;
-
-	while (text[index++] != 0 && index < 80)
-	{
-		; // Do nothing, just measuring the length of the text
-	}
-//printf("send_text(%s) %u\r\n", text, index);
-	mavlink_serial_send(MAVLINK_COMM_0, text, index - 1);
-}
-
-// A simple routine for sending a uint8_t number as 2 bytes of hexadecimal text
-//static void send_uint8(uint8_t value)
-//{
-//	uint8_t temp;
-//	temp = value >> 4; // Take upper half of hex int.
-//	if (temp < 10)
-//	{
-//		mp_mavlink_transmit(temp + 0x30); //1,2,3,4,5,6,7,8,9
-//	}
-//	else
-//	{
-//		mp_mavlink_transmit(temp - 10 + 0x41); // A,B,C,D,E,F
-//	}
-//	temp = value & 0x0f; // Take lower half of hex int
-//	if (temp < 10)
-//	{
-//		mp_mavlink_transmit(temp + 0x30); //1,2,3,4,5,6,7,8,9
-//	}
-//	else
-//	{
-//		mp_mavlink_transmit(temp - 10 + 0x41); // A,B,C,D,E,F
-//	}
-//}
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-//
-// MAIN MATRIXPILOT MAVLINK CODE FOR RECEIVING COMMANDS FROM THE GROUND CONTROL STATION
-//
-
-static mavlink_message_t msg[2];
-static uint8_t mavlink_message_index = 0;
-static mavlink_status_t r_mavlink_status;
-
-void mavlink_input_byte(uint8_t rxchar)
-//void mavlink_callback_received_byte(uint8_t rxchar)
-{
-//	DPRINT("%u \r\n", rxchar);
-
-	if (mavlink_parse_char(0, rxchar, &msg[mavlink_message_index], &r_mavlink_status))
-	{
-		// Check that handling of previous message has completed before calling again
-		if (handling_of_message_completed == true)
-		{
-			// Switch between incoming message buffers
-			if (mavlink_message_index == 0) mavlink_message_index = 1;
-			else mavlink_message_index = 0;
-			handling_of_message_completed = false;
-			trigger_event(mavlink_process_message_handle);
-		}
-	}
-}
+///////////////////////////////////////////////////////////////////////////////
 
 boolean mavlink_check_target(uint8_t target_system, uint8_t target_component)
 {
@@ -583,31 +436,8 @@ void MAVLinkSetMode(mavlink_message_t* handle_msg) // MAVLINK_MSG_ID_SET_MODE:
 // of that code.
 
 // This is the main routine for taking action against a parsed message from the GCS
-static void handleMessage(void)
+void mavlink_input_msg(mavlink_message_t* handle_msg)
 {
-/*
-typedef struct __mavlink_message {
-	uint16_t checksum; /// sent at end of packet
-	uint8_t magic;   ///< protocol magic marker
-	uint8_t len;     ///< Length of payload
-	uint8_t seq;     ///< Sequence of packet
-	uint8_t sysid;   ///< ID of message sender system/aircraft
-	uint8_t compid;  ///< ID of the message sender component
-	uint8_t msgid;   ///< ID of message in payload
-	uint64_t payload64[(MAVLINK_MAX_PAYLOAD_LEN+MAVLINK_NUM_CHECKSUM_BYTES+7)/8];
-} mavlink_message_t;
- */
-	mavlink_message_t* handle_msg;
-
-	if (mavlink_message_index == 0)
-	{
-		handle_msg = &msg[1];
-	}
-	else
-	{
-		handle_msg = &msg[0];
-	}
-
 //	DPRINT("MAV MSG 0x%x\r\n", handle_msg->msgid);
 //	DPRINT("handleMessage(sysid %u, compid %u, msgid %u)\r\n", handle_msg->sysid, handle_msg->compid, handle_msg->msgid);
 	if (handling_of_message_completed == true)
@@ -667,6 +497,7 @@ typedef struct __mavlink_message {
 // Callbacks for triggering command complete messaging
 //
 
+#if (USE_NV_MEMORY == 1)
 inline void preflight_storage_complete_callback(boolean success)
 {
 	if (mavlink_send_command_ack == false)
@@ -679,6 +510,7 @@ inline void preflight_storage_complete_callback(boolean success)
 		mavlink_send_command_ack = true;
 	}
 }
+#endif // (USE_NV_MEMORY == 1)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -738,23 +570,8 @@ static boolean mavlink_frequency_send(uint8_t frequency, uint8_t counter)
 		return false; // should never reach this line
 	}
 }
-#endif // (MAVLINK_TEST_ENCODE_DECODE != 1)
 
-void mavlink_output_40hz(void)
-#if (MAVLINK_TEST_ENCODE_DECODE == 1)
-{
-	if (mavlink_test_first_pass_flag == 1)
-	{
-		serial_output("\r\nRunning MAVLink encode / decode Tests.\r\n");
-		// reset serial buffer in preparation for testing against buffer
-		mavlink_tests_pass = 0;
-		mavlink_tests_fail = 0;
-		mavlink_test_all(mavlink_system.sysid, mavlink_system.compid, &last_msg);
-		serial_output("\r\nMAVLink Tests Pass: %d\r\nMAVLink Tests Fail: %d\r\n", mavlink_tests_pass, mavlink_tests_fail);
-		mavlink_test_first_pass_flag = 0;
-	}
-}
-#else
+void mavlink_output_40hz_handler(void)
 {
 	static float previous_earth_pitch = 0.0;
 	static float previous_earth_roll = 0.0;
@@ -1136,6 +953,6 @@ float xtrack_error = 0.0;
 	log_swapbuf();
 #endif
 }
-#endif // (MAVLINK_TEST_ENCODE_DECODE == 1)
 
+#endif // (MAVLINK_TEST_ENCODE_DECODE != 1)
 #endif // (USE_MAVLINK == 1)

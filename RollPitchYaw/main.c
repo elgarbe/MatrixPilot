@@ -36,7 +36,7 @@ char debug_buffer[128];
 int db_index = 0;
 void send_debug_line(void);
 
-void matrixpilot_init(void)
+int matrixpilot_init(void)
 {
 	udb_init();
 	dcm_init();
@@ -44,11 +44,13 @@ void matrixpilot_init(void)
 	udb_serial_set_rate(SERIAL_BAUDRATE);
 
 	led_off(LED_GREEN);
+	return 0;
 }
 
-void matrixpilot_loop(void)
+int matrixpilot_loop(void)
 {
 	udb_run();
+	return 0;
 }
 
 int main(void)

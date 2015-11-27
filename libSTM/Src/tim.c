@@ -38,7 +38,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
-#include "libUDB.h"
+#include "libUDB.h" // for USE_PPM_INPUT
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim3;
@@ -73,6 +73,9 @@ void MX_TIM3_Init(void)
   sConfigOC.Pulse = 1500;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+
+  sConfigOC.OCNPolarity = 0; // TODO: RobD - this can assert if not initalised
+
   HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
 
   HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2);
@@ -342,8 +345,18 @@ void start_ic(void)
     sConfigIC.ICFilter = 0;
 
 #if (USE_PPM_INPUT == 0)
+<<<<<<< HEAD
     //We are not supporting parallel Input to uC, so we don't need this Inputs
     //Put some error here
+=======
+      //We are not supporting parallel Input to uC, so we don't need this Inputs
+#error Receiver parallel inputs not currently supported on STM32F4 builds
+//NOTE: When using parallel input we need to measure Ton of each channel, so we need to look at Rising and Falling edge
+//    sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_BOTHEDGE;
+    //TODO: Enable as many as NUM_INPUTS Channels
+//	if (NUM_INPUTS > 0)  {HAL_TIM_IC_ConfigChannel(&htim5, &sConfigIC, TIM_CHANNEL_1); HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_1);};
+//	if (NUM_INPUTS > 1)  {HAL_TIM_IC_ConfigChannel(&htim5, &sConfigIC, TIM_CHANNEL_2); HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_2);};
+>>>>>>> robert/matrixPilot_nucleo
 #elif (USE_PPM_INPUT == 1)   //We are using PPM SIGNAL type 1
 //NOTE: When I use PPM type 1 I have to get time between each rising edge
     sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_RISING;

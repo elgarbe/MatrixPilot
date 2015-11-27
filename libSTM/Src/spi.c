@@ -237,9 +237,13 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
 
   /* USER CODE END SPI2_MspDeInit 1 */
   }
-} 
+}
 
 /* USER CODE BEGIN 1 */
+void* spi_open_r(const char* path, int flags, int mode) { return NULL; }
+int spi_close_r(void* dev) { return -1; }
+long spi_write_r(const void* dev, const char* ptr, int len) { return len; }
+long spi_read_r(const void* dev, char* ptr, int len) { return 0; }
 
 /* USER CODE END 1 */
 

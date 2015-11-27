@@ -38,11 +38,6 @@ void TriggerTaskGPS(void)
 	xSemaphoreGiveFromISR(xSemaphoreGPS, NULL);
 }
 
-// Got a character from the GPS
-//void udb_gps_callback_received_byte(uint8_t rxchar)
-//{
-//}
-
 static void TaskGPS(void* pvParameters)
 {
 	(void)pvParameters;

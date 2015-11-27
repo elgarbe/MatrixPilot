@@ -57,6 +57,10 @@ extern I2C_HandleTypeDef hi2c3;
 void MX_I2C1_Init(void);
 void MX_I2C3_Init(void);
 /* USER CODE BEGIN Prototypes */
+void* i2c_open_r(const char* path, int flags, int mode);
+int i2c_close_r(void* dev);
+long i2c_write_r(const void* dev, const char* ptr, int len);
+long i2c_read_r(const void* dev, char* ptr, int len);
 
 /* USER CODE END Prototypes */
 #ifdef __cplusplus

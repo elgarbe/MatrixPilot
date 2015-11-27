@@ -188,9 +188,13 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
 
   /* USER CODE END I2C3_MspDeInit 1 */
   }
-} 
+}
 
 /* USER CODE BEGIN 1 */
+void* i2c_open_r(const char* path, int flags, int mode) { return NULL; }
+int i2c_close_r(void* dev) { return -1; }
+long i2c_write_r(const void* dev, const char* ptr, int len) { return len; }
+long i2c_read_r(const void* dev, char* ptr, int len) { return 0; }
 
 /* USER CODE END 1 */
 
