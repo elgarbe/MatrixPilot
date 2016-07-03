@@ -239,6 +239,12 @@ extern union longww battery_voltage;        // battery_voltage._.W1 is in tenths
 extern uint8_t rc_signal_strength;          // rc_signal_strength is 0-100 as percent of full signal
 #endif
 
+#if (USE_INA219 != 0)
+extern union longww battery_current;        // battery_current._.W1 is in tenths of Amps
+extern union longww battery_mAh_used;       // battery_mAh_used._.W1 is in mAh
+extern union longww battery_voltage;        // battery_voltage._.W1 is in tenths of Volts
+#endif
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // LEDs

@@ -38,6 +38,11 @@ uint8_t rc_signal_strength;
 #define RSSI_RANGE ((int32_t)((RSSI_MAX_SIGNAL_VOLTAGE-RSSI_MIN_SIGNAL_VOLTAGE)/3.3 * 100))
 #endif
 
+#if (USE_INA219 != 0)
+union longww battery_current;        // battery_current._.W1 is in tenths of Amps
+union longww battery_mAh_used;       // battery_mAh_used._.W1 is in mAh
+union longww battery_voltage;        // battery_voltage._.W1 is in tenths of Volts
+#endif
 
 void init_analogs(void)
 {
@@ -51,6 +56,13 @@ void init_analogs(void)
 #if (ANALOG_RSSI_INPUT_CHANNEL != CHANNEL_UNUSED)
 	rc_signal_strength = 0;
 #endif
+    
+#if (USE_INA219 != 0)
+	battery_current.WW = 0;
+	battery_mAh_used.WW = 0;
+	battery_voltage.WW = 0;
+#endif
+
 }
 
 void calculate_analog_sensor_values(void)
