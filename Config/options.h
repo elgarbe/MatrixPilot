@@ -391,6 +391,8 @@
 #define RSSI_MIN_SIGNAL_VOLTAGE             0.5     // Voltage when RSSI should show 0%
 #define RSSI_MAX_SIGNAL_VOLTAGE             3.3     // Voltage when RSSI should show 100%
 
+// Enable support for INA219 electrical magnitude measurement board
+#define USE_INA219                          1
 
 ////////////////////////////////////////////////////////////////////////////////
 // MAXBOTIX SONAR LANDING FLARE
