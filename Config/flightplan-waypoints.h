@@ -153,7 +153,7 @@ const struct waypointDef waypoints[] = {
 #else
 
 const struct waypointDef waypoints[] = {
-		{ {   0,   0, 75 } , F_NORMAL, CAM_VIEW_LAUNCH } ,  // return to, and loiter 75 meters above the startup position
+		{ {   77,   -40, 100 } , F_LOITER, CAM_VIEW_LAUNCH } ,  // return to, and loiter 75 meters above the startup position
 };
 
 #endif
@@ -171,7 +171,7 @@ const struct waypointDef waypoints[] = {
 // and after flights, since turning off the transmitter will cause the throttle to come on.
 
 const struct waypointDef rtlWaypoints[] = {
-		{ { 0, 0,  50 } , F_LOITER + F_LAND, CAM_VIEW_LAUNCH } ,
+		{ { 77, -40,  100 } , F_LOITER , CAM_VIEW_LAUNCH } ,
 };
 
 
