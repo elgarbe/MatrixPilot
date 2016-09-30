@@ -389,8 +389,10 @@
 #define ANALOG_VOLTAGE_INPUT_CHANNEL        1   // AN16
 #define ANALOG_RSSI_INPUT_CHANNEL           CHANNEL_UNUSED
 
-#define MAX_CURRENT                         31994   // 90.0 Amps max for the sensor from SparkFun (in tenths of Amps)
-#define CURRENT_SENSOR_OFFSET               -113    // Add 1.0 Amp to whatever value we sense
+//#define MAX_CURRENT                         31994   // 90.0 Amps max for the sensor from SparkFun (in tenths of Amps)
+//#define CURRENT_SENSOR_OFFSET               -113    // Add 1.0 Amp to whatever value we sense
+#define MAX_CURRENT                         320     // 90.0 Amps max for the sensor from SparkFun (in tenths of Amps)
+#define CURRENT_SENSOR_OFFSET                 0     // Add 1.0 Amp to whatever value we sense
 
 #define MAX_VOLTAGE                         1860    // Necesito 18.6V para que a la salida de mi placa tenga 3.3V
 #define VOLTAGE_SENSOR_OFFSET               0       // Add 0.0 Volts to whatever value we sense
@@ -496,7 +498,7 @@
 // PITCHGAIN is the pitch stabilization gain, typically around 0.125
 // PITCHKD feedback gain for pitch damping, around 0.0625
 // ELEVATOR_BOOST is the additional gain multiplier for the manually commanded elevator deflection
-#define PITCHGAIN                           0.30
+#define PITCHGAIN                           0.40
 #define PITCHKD                             0.00
 #define ELEVATOR_BOOST                      0.50
 
@@ -649,7 +651,7 @@
 
 // Min and Max target heights in meters.  These only apply to stabilized mode.
 #define HEIGHT_TARGET_MIN                   0.0
-#define HEIGHT_TARGET_MAX                   100.0
+#define HEIGHT_TARGET_MAX                   120.0
 
 // The range of altitude within which to linearly vary the throttle
 // and pitch to maintain altitude.  A bigger value makes altitude hold
@@ -662,7 +664,7 @@
 // Use ALT_HOLD_THROTTLE_MIN when above HEIGHT_MARGIN of the target height.
 // Throttle values are from 0.0 - 1.0.
 #define ALT_HOLD_THROTTLE_MIN               0.0
-#define ALT_HOLD_THROTTLE_MAX               0.7
+#define ALT_HOLD_THROTTLE_MAX               0.6
 
 // Use ALT_HOLD_PITCH_MAX when below HEIGHT_MARGIN of the target height.
 // Interpolate between ALT_HOLD_PITCH_MAX and ALT_HOLD_PITCH_MIN when

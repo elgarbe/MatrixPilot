@@ -152,8 +152,20 @@ const struct waypointDef waypoints[] = {
 
 #else
 
+//const struct waypointDef waypoints[] = {
+//	{ { 243, -184, 110 } , F_NORMAL , CAM_VIEW_LAUNCH } , //Waypoint 1
+//	{ { 237, -304, 110 } , F_NORMAL , CAM_VIEW_LAUNCH } , //Waypoint 2
+//	{ {  80, -329, 110 } , F_NORMAL , CAM_VIEW_LAUNCH } , //Waypoint 3
+//	{ { -48, -228, 110 } , F_NORMAL , CAM_VIEW_LAUNCH } , //Waypoint 4
+//	{ { -46, -127, 110 } , F_NORMAL , CAM_VIEW_LAUNCH } , //Waypoint 5
+//	{ {  69,  -74, 110 } , F_NORMAL , CAM_VIEW_LAUNCH } , //Waypoint 6
+//};
 const struct waypointDef waypoints[] = {
-		{ {   77,   -40, 100 } , F_LOITER, CAM_VIEW_LAUNCH } ,  // return to, and loiter 75 meters above the startup position
+//	{ { 130, -146, 120 } , F_NORMAL , CAM_VIEW_LAUNCH } , //Waypoint 1
+//	{ {  47, -233, 120 } , F_NORMAL , CAM_VIEW_LAUNCH } , //Waypoint 2
+//	{ { -73, -120, 120 } , F_NORMAL , CAM_VIEW_LAUNCH } , //Waypoint 3
+//	{ {   4,  -38, 120 } , F_NORMAL , CAM_VIEW_LAUNCH } , //Waypoint 4
+    { { 20, -136,  100 } , F_LOITER , CAM_VIEW_LAUNCH } ,
 };
 
 #endif
@@ -171,7 +183,7 @@ const struct waypointDef waypoints[] = {
 // and after flights, since turning off the transmitter will cause the throttle to come on.
 
 const struct waypointDef rtlWaypoints[] = {
-		{ { 77, -40,  100 } , F_LOITER , CAM_VIEW_LAUNCH } ,
+		{ { 20, -136,  100 } , F_LOITER , CAM_VIEW_LAUNCH } ,
 };
 
 
