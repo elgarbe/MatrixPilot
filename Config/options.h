@@ -387,7 +387,7 @@
 
 #define ANALOG_CURRENT_INPUT_CHANNEL        2   // AN15
 #define ANALOG_VOLTAGE_INPUT_CHANNEL        1   // AN16
-#define ANALOG_RSSI_INPUT_CHANNEL           CHANNEL_UNUSED
+#define ANALOG_RSSI_INPUT_CHANNEL           3   // AN17
 
 //#define MAX_CURRENT                         31994   // 90.0 Amps max for the sensor from SparkFun (in tenths of Amps)
 //#define CURRENT_SENSOR_OFFSET               -113    // Add 1.0 Amp to whatever value we sense
