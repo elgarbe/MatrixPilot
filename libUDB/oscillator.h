@@ -23,7 +23,8 @@
 #define OSCILLATOR_H
 
 
-#define MIPS                    16
+#define MIPS                    32      //I have to use this becouse of an errata on my dsPIC
+                                       // I bouth a 710 insted of a 710A
 
 // clock-frequecy in Hz with suffix LL (64-bit-long), eg. 32000000LL for 32MHz
 #if (MIPS == 16)

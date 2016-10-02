@@ -30,7 +30,9 @@
 // UXBRG = ((32000000/2)/(16*9600))-1
 // UXBRG = 103
 
-#define UDB_BAUD(x) ((int16_t)((FREQOSC / CLK_PHASES) / ((int32_t)4 * x) - 1))
+//#define UDB_BAUD(x) ((int16_t)((FREQOSC / CLK_PHASES) / ((int32_t)4 * x) - 1))
+// Workaround for my mistake on dsPIC 710 instead of 710A
+#define UDB_BAUD(x) ((int16_t)((FREQOSC / CLK_PHASES) / ((int32_t)16 * x) - 1))
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -176,7 +178,8 @@ void udb_init_USART(int16_callback_fptr_t tx_fptr, callback_uint8_fptr_t rx_fptr
 	U2MODEbits.LPBACK = 0;      // Bit6 No Loop Back
 	U2MODEbits.ABAUD = 0;       // Bit5 No Autobaud (would require sending '55')
 	U2MODEbits.URXINV = 0;      // Bit4 IdleState = 1  (for dsPIC)
-	U2MODEbits.BRGH = 1;        // Bit3 4 clocks per bit period
+	// Change this becouse of my dsPIC710 instead of 710A
+    U2MODEbits.BRGH = 0;        // Bit3 4 clocks per bit period
 	U2MODEbits.PDSEL = 0;       // Bits1,2 8bit, No Parity
 	U2MODEbits.STSEL = 0;       // Bit0 One Stop Bit
 
