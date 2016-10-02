@@ -58,7 +58,8 @@ void udb_init_GPS(int16_callback_fptr_t tx_fptr, callback_uint8_fptr_t rx_fptr)
 	U1MODEbits.LPBACK = 0;      // Bit6 No Loop Back
 	U1MODEbits.ABAUD = 0;       // Bit5 No Autobaud (would require sending '55')
 	U1MODEbits.URXINV = 0;      // Bit4 IdleState = 1  (for dsPIC)
-	U1MODEbits.BRGH = 1;        // Bit3 4 clocks per bit period
+    // Change this becouse of my dsPIC710 instead of 710A
+	U1MODEbits.BRGH = 0;        // Bit3 4 clocks per bit period
 	U1MODEbits.PDSEL = 0;       // Bits1,2 8bit, No Parity
 	U1MODEbits.STSEL = 0;       // Bit0 One Stop Bit
 
