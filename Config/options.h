@@ -238,7 +238,7 @@
 // For UDB4/5 boards: Set to 3-8 (or up to 10 using pins RA4 and RA1.)
 // For AUAV3 boards:  Set to 3-8 (or up to 11 using pins RE1, RA6 and RA7.)
 //                               (this needs developing, so contact the list)
-#define NUM_OUTPUTS                         3
+#define NUM_OUTPUTS                         4
 
 // Channel numbers for each output
 // Use as is, or edit to match your setup.
