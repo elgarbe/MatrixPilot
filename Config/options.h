@@ -80,15 +80,15 @@
 //
 // Roll, Pitch, and Yaw Stabilization
 // Set any of these to 0 to disable the stabilization in that axis.
-#define ROLL_STABILIZATION_AILERONS         1
-#define ROLL_STABILIZATION_RUDDER           0
+#define ROLL_STABILIZATION_AILERONS         0
+#define ROLL_STABILIZATION_RUDDER           1
 #define PITCH_STABILIZATION                 1
 #define YAW_STABILIZATION_RUDDER            1
 #define YAW_STABILIZATION_AILERON           0
 
 // Aileron and Rudder Navigation
 // Set either of these to 1 to enable helical turn control for navigation.
-#define AILERON_NAVIGATION                  1
+#define AILERON_NAVIGATION                  0
 #define RUDDER_NAVIGATION                   1
 
 // Cross track margin, in meters
@@ -209,16 +209,16 @@
 // If using PWM inputs (parallel Rx connections), set to the number of cables connected, 1-8
 // If using PPM inputs (serial Rx connection), set to the number of Rx channels, up to PPM_NUMBER_OF_CHANNELS
 // If using LRS library (integrated SPI tranceiver), set to the number of Rx channels, up to 16
-#define NUM_INPUTS                          1
+#define NUM_INPUTS                          4
 
 // Channel numbers for each input.
 // Use as is, or edit to match your setup.
 //   - If you're set up to use Rudder Navigation (like MatrixNav), then you may want to swap
 //     the aileron and rudder channels so that rudder is CHANNEL_1, and aileron is 5.
-#define THROTTLE_INPUT_CHANNEL              CHANNEL_UNUSED
+#define THROTTLE_INPUT_CHANNEL              CHANNEL_3
 #define AILERON_INPUT_CHANNEL               CHANNEL_UNUSED
-#define ELEVATOR_INPUT_CHANNEL              CHANNEL_UNUSED
-#define RUDDER_INPUT_CHANNEL                CHANNEL_UNUSED
+#define ELEVATOR_INPUT_CHANNEL              CHANNEL_2
+#define RUDDER_INPUT_CHANNEL                CHANNEL_4
 #define MODE_SWITCH_INPUT_CHANNEL           CHANNEL_1
 #define BRAKE_THR_SEL_INPUT_CHANNEL         CHANNEL_UNUSED
 #define BRAKE_INPUT_CHANNEL                 CHANNEL_UNUSED
@@ -238,7 +238,7 @@
 // For UDB4/5 boards: Set to 3-8 (or up to 10 using pins RA4 and RA1.)
 // For AUAV3 boards:  Set to 3-8 (or up to 11 using pins RE1, RA6 and RA7.)
 //                               (this needs developing, so contact the list)
-#define NUM_OUTPUTS                         0
+#define NUM_OUTPUTS                         3
 
 // Channel numbers for each output
 // Use as is, or edit to match your setup.
@@ -251,11 +251,11 @@
 // connect THROTTLE_OUTPUT_CHANNEL to one of the built-in Outputs (1, 2, or 3) to make
 // sure your board gets power.
 //
-#define THROTTLE_OUTPUT_CHANNEL             CHANNEL_UNUSED
+#define THROTTLE_OUTPUT_CHANNEL             CHANNEL_3
 #define AILERON_OUTPUT_CHANNEL              CHANNEL_UNUSED
 #define AILERON_SECONDARY_OUTPUT_CHANNEL    CHANNEL_UNUSED
-#define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_UNUSED
-#define RUDDER_OUTPUT_CHANNEL               CHANNEL_UNUSED
+#define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_2
+#define RUDDER_OUTPUT_CHANNEL               CHANNEL_4
 #define AILERON_LEFT_OUTPUT_CHANNEL         CHANNEL_UNUSED
 #define FLAP_LEFT_OUTPUT_CHANNEL            CHANNEL_UNUSED
 #define FLAP_RIGHT_OUTPUT_CHANNEL           CHANNEL_UNUSED
@@ -292,8 +292,8 @@
 // Often the Flap channel will be controlled by a 3-position switch.
 // These are the thresholds for the cutoffs between low and middle, and between middle and high.
 // Normal signals should fall within about 2000 - 4000.
-#define MODE_SWITCH_THRESHOLD_LOW           2200
-#define MODE_SWITCH_THRESHOLD_HIGH          3800
+#define MODE_SWITCH_THRESHOLD_LOW           2800
+#define MODE_SWITCH_THRESHOLD_HIGH          3200
 
 // Setting MODE_SWITCH_TWO_POSITION to 1,  allows a two state mode switch on the transmitter to be used
 // to create three flight modes. When switch is "Down" the plane always reverts to Manual. When "Up",
@@ -320,7 +320,7 @@
 // FAILSAFE_INPUT_MIN and _MAX define the range within which we consider the radio on.
 // Normal signals should fall within about 2000 - 4000.
 #define FAILSAFE_INPUT_CHANNEL              MODE_SWITCH_INPUT_CHANNEL
-#define FAILSAFE_INPUT_MIN                  2100
+#define FAILSAFE_INPUT_MIN                  2000
 #define FAILSAFE_INPUT_MAX                  4000
 
 // FAILSAFE_TYPE controls the UDB's behavior when in failsafe mode due to loss of transmitter
@@ -560,7 +560,7 @@
 // RUDDER_BOOST is the additional gain multiplier for the manually commanded rudder deflection
 #define YAWKP_RUDDER                        0.30
 #define YAWKD_RUDDER                        0.00
-#define ROLLKP_RUDDER                       0.00
+#define ROLLKP_RUDDER                       0.30
 #define ROLLKD_RUDDER                       0.00
 #define MANUAL_AILERON_RUDDER_MIX           0.00
 #define RUDDER_BOOST                        0.50
@@ -662,20 +662,20 @@
 // These settings are only used when Altitude Hold is enabled above.
 
 // Min and Max target heights in meters.  These only apply to stabilized mode.
-#define HEIGHT_TARGET_MIN                   25.0
+#define HEIGHT_TARGET_MIN                   0.0
 #define HEIGHT_TARGET_MAX                   100.0
 
 // The range of altitude within which to linearly vary the throttle
 // and pitch to maintain altitude.  A bigger value makes altitude hold
 // smoother, and is suggested for very fast planes.
-#define HEIGHT_MARGIN                       10
+#define HEIGHT_MARGIN                       20
 
 // Use ALT_HOLD_THROTTLE_MAX when below HEIGHT_MARGIN of the target height.
 // Interpolate between ALT_HOLD_THROTTLE_MAX and ALT_HOLD_THROTTLE_MIN
 // when within HEIGHT_MARGIN of the target height.
 // Use ALT_HOLD_THROTTLE_MIN when above HEIGHT_MARGIN of the target height.
 // Throttle values are from 0.0 - 1.0.
-#define ALT_HOLD_THROTTLE_MIN               0.35
+#define ALT_HOLD_THROTTLE_MIN               0.0
 #define ALT_HOLD_THROTTLE_MAX               1.0
 
 // Use ALT_HOLD_PITCH_MAX when below HEIGHT_MARGIN of the target height.
