@@ -19,34 +19,20 @@
 // along with MatrixPilot.  If not, see <http://www.gnu.org/licenses/>.
 
 
-#ifndef HEARTBEAT_H
-#define HEARTBEAT_H
+// define the OSD types
+#define OSD_NONE            1   // OSD disabled
+#define OSD_NATIVE          1   // native OSD
+#define OSD_REMZIBI         2   // Output data formatted to use as input to a Remzibi OSD
+#define OSD_MINIM           3   // Output data formatted for minim OSD
 
 
-// number of heartbeats per second
-#if (BOARD_TYPE == UDB4_BOARD)
-#define HEARTBEAT_HZ 40
-#else
-#define HEARTBEAT_HZ 200
-#endif // (BOARD_TYPE != UDB4_BOARD)
-
-// number of servo updates per second
-#define SERVO_HZ 40
-
-// frequency of PID loop (HEARTBEAT_HZ / PID_HZ must be an integer)
-#define PID_HZ 40
-
-// PWM rate for ESCs (Quadcopter support)
-//#define ESC_HZ 400
-#define ESC_HZ 200
-
-// Read-only value increments with each heartbeat
-extern uint16_t udb_heartbeat_counter;
+// define USE_OSD to one of the types above to enables that system
+#define USE_OSD         OSD_NONE
+//#define USE_OSD         OSD_NATIVE
+//#define USE_OSD         OSD_REMZIBI
+//#define USE_OSD         OSD_MINIM
 
 
-void heartbeat(void);
-uint16_t heartbeat_cnt(void);
-boolean heartbeat_chk(uint16_t hertz);
-
-
-#endif // HEARTBEAT_H
+// OSD_NATIVE development options:
+#define USE_OSD_SPI     0   // set this to 1 to use the SPI peripheral, 0 to bit-bash
+#define OSD_SF          5   // scale factor for SPI delays - TODO: get rid of
