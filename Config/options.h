@@ -24,10 +24,10 @@
 // Bill Premerlani's UAV Dev Board
 //
 // This file includes the main user-configuration for this firmware.
-// Once an options is enabled, it may require further options, and these
+// Once an option is enabled, it may require further options, and these
 // are often in a further more detail options file. For example if you enable
 // mavlink, then you may also want to review the file options_mavlink.h. 
-// Autonomous flight plans are either specified in flightplan-waypoints.hi, which is 
+// Autonomous flight plans are either specified in flightplan-waypoints.h, which is 
 // a simple list of waypoints to follow, or in flightplan-logo.h which provides  
 // an interpreted language with more powerful features for dynamic flight planning.
 
@@ -64,7 +64,9 @@
 //    AIRFRAME_QUAD             Under development
 //    AIRFRAME_GLIDER           Under development. Elevator, Flaps, Ailerons and/or Rudder control, motor optional 
 // (Note that although AIRFRAME_HELI is also recognized, the code for this airframe type is not ready.)
+#ifndef AIRFRAME_TYPE
 #define AIRFRAME_TYPE                       AIRFRAME_STANDARD
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -340,8 +342,8 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Serial Output Format (Can be SERIAL_NONE, SERIAL_DEBUG, SERIAL_ARDUSTATION, SERIAL_UDB,
-// SERIAL_UDB_EXTRA,SERIAL_MAVLINK, SERIAL_CAM_TRACK, SERIAL_OSD_REMZIBI, or SERIAL_UDB_MAG)
+// Serial Output Format (Can be SERIAL_NONE, SERIAL_DEBUG, SERIAL_ARDUSTATION,
+// SERIAL_UDB_EXTRA,SERIAL_MAVLINK, SERIAL_CAM_TRACK, SERIAL_OSD_REMZIBI, SERIAL_MAGNETOMETER)
 // This determines the format of the output sent out the spare serial port.
 // Note that SERIAL_OSD_REMZIBI only works with a ublox GPS.
 // SERIAL_UDB_EXTRA will add additional telemetry fields to those of SERIAL_UDB.
@@ -349,7 +351,7 @@
 // SERIAL_UDB_EXTRA may result in dropped characters if used with the XBEE wireless transmitter.
 // SERIAL_CAM_TRACK is used to output location data to a 2nd UDB, which will target its camera at this plane.
 // SERIAL_MAVLINK is a bi-directional binary format for use with QgroundControl, HKGCS or MAVProxy (Ground Control Stations.)
-// SERIAL_UDB_MAG outputs the automatically calculated offsets and raw magnetometer data.
+// SERIAL_MAGNETOMETER outputs the automatically calculated offsets and raw magnetometer data.
 // Note that SERIAL_MAVLINK defaults to using a baud rate of 57600 baud (other formats default to 19200)
 
 #define SERIAL_OUTPUT_FORMAT                SERIAL_UDB_EXTRA
@@ -514,11 +516,11 @@
 // ELEVATOR_TRIM_INVERTED               Elevator trim in fractional servo units (-1.0 to 1.0 ) for inverted straight and level flight at cruise speed.
 // Note: ELEVATOR_TRIM_INVERTED is usually negative, with typical values in the -0.5 to -1.0 range.
 
-#define REFERENCE_SPEED			    (  12.0 )
-#define ANGLE_OF_ATTACK_NORMAL		    (   0.0 )
-#define ANGLE_OF_ATTACK_INVERTED	    (   0.0 )
-#define ELEVATOR_TRIM_NORMAL		    (   0.0 )
-#define ELEVATOR_TRIM_INVERTED		    (   0.0 )
+#define REFERENCE_SPEED                 (  12.0 )
+#define ANGLE_OF_ATTACK_NORMAL          (   0.0 )
+#define ANGLE_OF_ATTACK_INVERTED        (   0.0 )
+#define ELEVATOR_TRIM_NORMAL            (   0.0 )
+#define ELEVATOR_TRIM_INVERTED          (   0.0 )
 
 // CUSTOM OFFSETS are recommended when using Angle of Attack and Trim Parameters
 // They ensure that the measured orientation of the plane, particularly in pitch,
@@ -692,7 +694,9 @@
 // See the MatrixPilot wiki for more info on using HILSIM.
 // HILSIM_BAUD is the serial speed for communications with the X-Plane plugin.  Default is
 // now 38400.  Make sure the X-Plane plugin's Setup file has its speed set to match.
+#ifndef HILSIM
 #define HILSIM                              0
+#endif
 #define HILSIM_USB                          0           // AUAV3 only (under development)
 #define HILSIM_BAUD                         38400
 
@@ -808,7 +812,7 @@
 // the default usage of that UART, being the GPS and Telemetry respectively.
 // CONSOLE_UART 3 and 4 options are only available with the AUAV3 board.
 // Thus UDB4/5 options are 0, 1, or 2  AUAV3 options are 0, 3, or 4
-// Set to 9 in order to use the USB for the console connection
+// Set to 9 in order to use the USB for the console connection (under development)
 #define CONSOLE_UART                        0
 //#define CONSOLE_UART                        6
 
