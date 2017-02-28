@@ -268,28 +268,130 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Main Flight Plan
 //
-// Fly a 100m square at an altitude of 100m, beginning above the origin, pointing North
+//////////////////////////////////////////////////
+// UDB LOGO Program
 
-#define SQUARE 1
+#define CIRCLE 1
 
-const struct logoInstructionDef instructions[] = {
+const struct logoInstructionDef rtlInstructions[] = {
 
-	SET_ALT(100)
+	ALT_UP(100)       // Set the height of the virtual plane to 100 meters 
+	// Use cross-tracking for navigation
+	FLAG_ON(F_CROSS_TRACK)
 
-	// Go Home and point North
-	HOME
+    // Line up to begin circling in front of the pilot
+	// about 1 radius left and 1 diameter back from the pilot
+	PEN_UP            //  Do all of the following with a Virtual Plane,
+                          //  Pen Up, means don't ask the real plane to 
+                          //  follow the virtual plane yet. 
+	HOME              //  Send the Virtua Plane to the Origin location,and 
+                          //  point North
+	USE_ANGLE_TO_GOAL //  Take the bearing (heading angle) between where the
+                          //  real plane is located, and the virtual plane
+                          //  is now the goal. Face the virtual plane in that 
+                          //  direction
+	BK(170)           //  Take the virtual plane backwards 170 meters from
+                          //  the direction that it is facing. (170 meters from 
+                          //  home back towards the real plane)
+	LT(90)            //  Turn the virtual plane 90 degrees to the left.
+	FD(85)            //  Move the virtual plane 85 meters forward.
+	RT(90)            //  Turn the virtual plane 90 degrees to the right
+	PEN_DOWN          //  OK...Now fly to the Virtual Plane.
 
-	REPEAT_FOREVER
-		DO_ARG(SQUARE, 100)
+	// A few Circles powered, ~170m diameter
+	REPEAT(2)         //  When you arrive, do the CIRCLE subroutine twice
+                          //  See much further below for the definition of the 
+                          //  circle subroutine.
+		DO_ARG(CIRCLE, 15)
 	END
 
-	TO (SQUARE)
-		REPEAT(4)
-			FD_PARAM
-			RT(90)
+	// Then unpowered circles until landing, , ~170m diameter
+//	FLAG_ON(F_LAND)   // Now turn off the motor
+	REPEAT_FOREVER    // Keep doing gentle circles forever (to land).
+		DO_ARG(CIRCLE, 15)
+	END
+
+	// Smooth right-hand circles
+	TO(CIRCLE)
+		RT(5)               // Turn Virtual Plane Right by 5 degrees
+		REPEAT(36)          // Repeat the following 36 times
+			FD_PARAM    // Go forward by the parameter to this 
+                                    // subroutine (which is 15 meters)
+			RT(10)      // Right Turn 10 degrees (36*10 to make 360)
 		END
+		LT(5)               // Left turn 5 degrees at the end
 	END
 };
+
+
+//#define CIRCLE			1
+//
+//const struct logoInstructionDef instructions[] = {
+//	// Use cross-tracking for navigation
+//	FLAG_ON(F_CROSS_TRACK)
+//
+//	// Line up to begin circling in front of the pilot in an absolute coordinate
+////  Do all of the following with a Virtual Plane, Pen Up, means don't ask the real plane to 
+////  follow the virtual plane yet. 
+//	PEN_UP            
+//	//  Send the Virtua Plane to the Absolute position of the Circle center location,and 
+//	//  point North	
+//	SET_ABS_POS(-600568162, -335071876)     // Fire station place
+////	SET_ABS_POS(-600534850, -334976711)     // SOL service station place
+////    SET_ABS_POS(-601984692, -333896574)     // Flying club SN
+////  Take the bearing (heading angle) between where the real plane is located, and the virtual plane
+////  is now the goal. Face the virtual plane in that direction
+//	USE_ANGLE_TO_GOAL 
+//	LT(90)            //  Turn the virtual plane 90 degrees to the left.
+////	FD(172)            //  Move the virtual plane 172 meters forward. Big circle
+//	FD(115)            //  Move the virtual plane 115 meters forward. Big circle
+////	FD(50)            //  Move the virtual plane 64 meters forward. Small circle
+//	RT(90)            //  Turn the virtual plane 90 degrees to the right
+//	
+//	PEN_DOWN          //  OK...Now fly to the Virtual Plane.
+//	REPEAT_FOREVER    // Keep doing gentle circles forever.
+////        DO_ARG(CIRCLE, 30)  // 30mts * 36 segments / PI = 343mts diameter
+//		DO_ARG(CIRCLE, 20)  //Big circle
+////		DO_ARG(CIRCLE, 10)  // Small circle
+//	END
+//
+//	// Smooth right-hand circles
+//	TO(CIRCLE)
+//		RT(5)           // Turn Virtual Plane Right by 5 degrees
+//		REPEAT(36)      // Repeat the following 36 times
+//			FD_PARAM    // Go forward by the parameter to this subroutine (which is 20 meters)
+//			RT(10)      // Right Turn 10 degrees (36*10 to make 360)
+//		END
+//		LT(5)          // Left turn 5 degrees at the end
+//	END
+//} ;
+
+
+
+
+
+// Fly a 100m square at an altitude of 100m, beginning above the origin, pointing North
+//
+//#define SQUARE 1
+//
+//const struct logoInstructionDef instructions[] = {
+//
+//	SET_ALT(100)
+//
+//	// Go Home and point North
+//	HOME
+//
+//	REPEAT_FOREVER
+//		DO_ARG(SQUARE, 100)
+//	END
+//
+//	TO (SQUARE)
+//		REPEAT(4)
+//			FD_PARAM
+//			RT(90)
+//		END
+//	END
+//};
 
 ////////////////////////////////////////////////////////////////////////////////
 // RTL Flight Plan
@@ -297,30 +399,107 @@ const struct logoInstructionDef instructions[] = {
 // On entering RTL mode, turn off the engine, fly home, and circle indefinitely until touching down
 
 const struct logoInstructionDef rtlInstructions[] = {
+	ALT_UP(100)       // Set the height of the virtual plane to 100 meters 
 
-	// Use cross-tracking for navigation
-	FLAG_ON(F_CROSS_TRACK)
+	// For RTL only -- start with motor off -- for safety in ground situations
+	FLAG_ON(F_LAND)   //  But start with the motor off, we need, for safety
+                          //  not to switch the motor on, if we are not moving.
+                          //  For example are we already stuck in a tree ?
+	FD(50)            //  Move the Virtual Plane 50 meters forward, (and
+                          //  as always, pause any further instructions until
+                          /// the real plane has arrived. 
+	FLAG_OFF(F_LAND)  //  Switch the motor back on; We are definitely flying
 
-	// Turn off engine for RTL
-	// Move this line down below the HOME to return home with power before circling unpowered.
-	FLAG_ON(F_LAND)
+	// Line up to begin circling in front of the pilot
+	// about 1 radius left and 1 diameter back from the pilot
+	PEN_UP            //  Do all of the following with a Virtual Plane,
+                          //  Pen Up, means don't ask the real plane to 
+                          //  follow the virtual plane yet. 
+	HOME              //  Send the Virtua Plane to the Origin location,and 
+                          //  point North
+	USE_ANGLE_TO_GOAL //  Take the bearing (heading angle) between where the
+                          //  real plane is located, and the virtual plane
+                          //  is now the goal. Face the virtual plane in that 
+                          //  direction
+	BK(170)           //  Take the virtual plane backwards 170 meters from
+                          //  the direction that it is facing. (170 meters from 
+                          //  home back towards the real plane)
+	LT(90)            //  Turn the virtual plane 90 degrees to the left.
+	FD(85)            //  Move the virtual plane 85 meters forward.
+	RT(90)            //  Turn the virtual plane 90 degrees to the right
+	PEN_DOWN          //  OK...Now fly to the Virtual Plane.
 
-	// Fly home
-	HOME
-
-	// Once we arrive home, aim the turtle in the
-	// direction that the plane is already moving.
-	USE_CURRENT_ANGLE
-
-	REPEAT_FOREVER
-		// Fly a circle (36-point regular polygon)
-		REPEAT(36)
-			RT(10)
-			FD(8)
-		END
+	// A few Circles powered, ~170m diameter
+	REPEAT(2)         //  When you arrive, do the CIRCLE subroutine twice
+                          //  See much further below for the definition of the 
+                          //  circle subroutine.
+		DO_ARG(CIRCLE, 15)
 	END
-	
-};
+
+	// Then unpowered circles until landing, , ~170m diameter
+//	FLAG_ON(F_LAND)   // Now turn off the motor
+	REPEAT_FOREVER    // Keep doing gentle circles forever (to land).
+		DO_ARG(CIRCLE, 15)
+	END
+
+	// Smooth right-hand circles
+	TO(CIRCLE)
+		RT(5)               // Turn Virtual Plane Right by 5 degrees
+		REPEAT(36)          // Repeat the following 36 times
+			FD_PARAM    // Go forward by the parameter to this 
+                                    // subroutine (which is 15 meters)
+			RT(10)      // Right Turn 10 degrees (36*10 to make 360)
+		END
+		LT(5)               // Left turn 5 degrees at the end
+	END
+};    
+
+//	// Use cross-tracking for navigation
+//	FLAG_ON(F_CROSS_TRACK)
+//
+//	FLAG_ON(F_LAND)   //  But start with the motor off, we need, for safety
+//                          //  not to switch the motor on, if we are not moving.
+//                          //  For example are we already stuck in a tree ?
+//	FD(50)            //  Move the Virtual Plane 50 meters forward, (and
+//                          //  as always, pause any further instructions until
+//                          /// the real plane has arrived. 
+//	FLAG_OFF(F_LAND)  //  Switch the motor back on; We are definitely flying
+//
+//	// Line up to begin circling in front of the pilot in an absolute coordinate
+////  Do all of the following with a Virtual Plane, Pen Up, means don't ask the real plane to 
+////  follow the virtual plane yet. 
+//	PEN_UP            
+//	//  Send the Virtua Plane to the Absolute position of the Circle center location,and 
+//	//  point North	
+//	SET_ABS_POS(-600568162, -335071876)     // Fire station place
+////	SET_ABS_POS(-600534850, -334976711)     // SOL service station place
+////    SET_ABS_POS(-601995313, -333898007)     // Flying club SN
+//
+////  Take the bearing (heading angle) between where the real plane is located, and the virtual plane
+////  is now the goal. Face the virtual plane in that direction
+//	USE_ANGLE_TO_GOAL 
+//	LT(90)            //  Turn the virtual plane 90 degrees to the left.
+//	FD(115)            //  Move the virtual plane 115 meters forward. Big circle
+////	FD(50)            //  Move the virtual plane 64 meters forward. Small circle
+//	RT(90)            //  Turn the virtual plane 90 degrees to the right
+//	
+//	PEN_DOWN          //  OK...Now fly to the Virtual Plane.
+//	// make circles powered, ~229m diameter
+//	REPEAT_FOREVER    // Keep doing gentle circles forever (to land).
+//		DO_ARG(CIRCLE, 20)  //Big circle
+////		DO_ARG(CIRCLE, 10)  // Small circle
+//	END
+//
+//	// Smooth right-hand circles
+//	TO(CIRCLE)
+//		RT(5)           // Turn Virtual Plane Right by 5 degrees
+//		REPEAT(36)      // Repeat the following 36 times
+//			FD_PARAM    // Go forward by the parameter to this subroutine (which is 20 meters)
+//			RT(10)      // Right Turn 18 degrees (20*18 to make 360)
+//		END
+//		LT(5)          // Left turn 5 degrees at the end
+//	END
+//};
 
 
 ////////////////////////////////////////////////////////////////////////////////

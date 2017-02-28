@@ -56,12 +56,6 @@
       <logicalFolder name="Tools/LedTest/Config"
                      displayName="Tools/LedTest/Config"
                      projectFiles="true">
-        <itemPath>../../../Tools/LedTest/Config/options.h</itemPath>
-        <itemPath>../../../Tools/LedTest/Config/options_auav3.h</itemPath>
-        <itemPath>../../../Tools/LedTest/Config/options_magnetometer.h</itemPath>
-        <itemPath>../../../Tools/LedTest/Config/options_nv_memory.h</itemPath>
-        <itemPath>../../../Tools/LedTest/Config/options_osd.h</itemPath>
-        <itemPath>../../../Tools/LedTest/Config/options_ports.h</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
@@ -254,8 +248,7 @@
         <property key="input-libraries" value=""/>
         <property key="linker-stack" value="true"/>
         <property key="linker-symbols" value=""/>
-        <property key="map-file"
-                  value="&quot;${DISTDIR}/LedTest-UDB5.X.${IMAGE_TYPE}.map&quot;"/>
+        <property key="map-file" value="&quot;${DISTDIR}/LedTest-UDB5.X.${IMAGE_TYPE}.map&quot;"/>
         <property key="oXC16ld-extra-opts" value=""/>
         <property key="oXC16ld-fill-upper" value="0"/>
         <property key="oXC16ld-force-link" value="false"/>

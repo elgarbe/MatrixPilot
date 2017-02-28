@@ -684,7 +684,7 @@
 
 // Min and Max target heights in meters.  These only apply to stabilized mode.
 #define HEIGHT_TARGET_MIN                   0.0
-#define HEIGHT_TARGET_MAX                   200.0
+#define HEIGHT_TARGET_MAX                   300.0
 
 // The range of altitude within which to linearly vary the throttle
 // and pitch to maintain altitude.  A bigger value makes altitude hold
@@ -739,7 +739,7 @@
 // The Waypoint definitions and options are located in the flightplan-waypoints.h file.
 // The Logo flight plan definitions and options are located in the flightplan-logo.h file.
 
-#define FLIGHT_PLAN_TYPE                    FP_WAYPOINTS
+#define FLIGHT_PLAN_TYPE                    FP_LOGO
 
 
 ////////////////////////////////////////////////////////////////////////////////

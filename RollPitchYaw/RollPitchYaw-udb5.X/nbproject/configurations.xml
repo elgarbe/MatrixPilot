@@ -77,12 +77,6 @@
       <logicalFolder name="RollPitchYaw/Config"
                      displayName="RollPitchYaw/Config"
                      projectFiles="true">
-        <itemPath>../../RollPitchYaw/Config/options.h</itemPath>
-        <itemPath>../../RollPitchYaw/Config/options_auav3.h</itemPath>
-        <itemPath>../../RollPitchYaw/Config/options_magnetometer.h</itemPath>
-        <itemPath>../../RollPitchYaw/Config/options_nv_memory.h</itemPath>
-        <itemPath>../../RollPitchYaw/Config/options_osd.h</itemPath>
-        <itemPath>../../RollPitchYaw/Config/options_ports.h</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
