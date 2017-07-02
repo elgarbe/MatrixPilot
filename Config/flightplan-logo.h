@@ -273,9 +273,9 @@
 
 #define CIRCLE 1
 
-const struct logoInstructionDef rtlInstructions[] = {
+const struct logoInstructionDef instructions[] = {
 
-	ALT_UP(100)       // Set the height of the virtual plane to 100 meters 
+//	ALT_UP(100)       // Set the height of the virtual plane to 100 meters 
 	// Use cross-tracking for navigation
 	FLAG_ON(F_CROSS_TRACK)
 
@@ -399,7 +399,7 @@ const struct logoInstructionDef rtlInstructions[] = {
 // On entering RTL mode, turn off the engine, fly home, and circle indefinitely until touching down
 
 const struct logoInstructionDef rtlInstructions[] = {
-	ALT_UP(100)       // Set the height of the virtual plane to 100 meters 
+//	ALT_UP(100)       // Set the height of the virtual plane to 100 meters 
 
 	// For RTL only -- start with motor off -- for safety in ground situations
 	FLAG_ON(F_LAND)   //  But start with the motor off, we need, for safety
