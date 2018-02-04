@@ -65,13 +65,13 @@
 //    AIRFRAME_GLIDER           Under development. Elevator, Flaps, Ailerons and/or Rudder control, motor optional 
 // (Note that although AIRFRAME_HELI is also recognized, the code for this airframe type is not ready.)
 #ifndef AIRFRAME_TYPE
-#define AIRFRAME_TYPE                       AIRFRAME_STANDARD
+#define AIRFRAME_TYPE                       AIRFRAME_DELTA
 #endif
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Set this value to your GPS type.  (Set to GPS_STD, GPS_UBX_2HZ, GPS_UBX_4HZ, GPS_MTEK, GPS_NMEA, or GPS_NONE)
-#define GPS_TYPE                            GPS_STD
+#define GPS_TYPE                            GPS_UBX_4HZ
 //#define DEFAULT_GPS_BAUD                    57600   // added for GPS_NMEA support
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -92,13 +92,13 @@
 #define ROLL_STABILIZATION_AILERONS         1
 #define ROLL_STABILIZATION_RUDDER           0
 #define PITCH_STABILIZATION                 1
-#define YAW_STABILIZATION_RUDDER            1
+#define YAW_STABILIZATION_RUDDER            0
 #define YAW_STABILIZATION_AILERON           0
 
 // Aileron and Rudder Navigation
 // Set either of these to 1 to enable helical turn control for navigation.
 #define AILERON_NAVIGATION                  1
-#define RUDDER_NAVIGATION                   1
+#define RUDDER_NAVIGATION                   0
 
 // Cross track margin, in meters
 // This is used when the cross track option is attached to a waypoint
@@ -127,8 +127,8 @@
 // altitude is determined by the position of the throttle stick on the transmitter.
 // NOTE: even when set to AH_NONE, MatrixPilot will still try to stabilize pitch as long
 // as PITCH_STABILIZATION is set to 1 above, but will not aim for any specific altitude.
-#define ALTITUDEHOLD_STABILIZED             AH_FULL
-#define ALTITUDEHOLD_WAYPOINT               AH_FULL
+#define ALTITUDEHOLD_STABILIZED             AH_NONE
+#define ALTITUDEHOLD_WAYPOINT               AH_NONE
 
 // Speed Control
 // If you define SPEED_CONTROL to be 1, MatrixPilot will take air speed into account
@@ -202,9 +202,9 @@
 // PPM_NUMBER_OF_CHANNELS is the number of channels sent on the PWM signal.  This is
 // often different from the NUM_INPUTS value below, and should usually be left at 8.
 //
-#define USE_PPM_INPUT                       0
+#define USE_PPM_INPUT                       1
 #define PPM_NUMBER_OF_CHANNELS              8
-#define PPM_SIGNAL_INVERTED                 0
+#define PPM_SIGNAL_INVERTED                 1
 #define PPM_ALT_OUTPUT_PINS                 0
 
 // Select which Input Capture pin the PPM device is connected to
@@ -218,7 +218,7 @@
 // If using PWM inputs (parallel Rx connections), set to the number of cables connected, 1-8
 // If using PPM inputs (serial Rx connection), set to the number of Rx channels, up to PPM_NUMBER_OF_CHANNELS
 // If using LRS library (integrated SPI tranceiver), set to the number of Rx channels, up to 16
-#define NUM_INPUTS                          5
+#define NUM_INPUTS                          8
 
 // Channel numbers for each input.
 // Use as is, or edit to match your setup.
@@ -227,8 +227,8 @@
 #define THROTTLE_INPUT_CHANNEL              CHANNEL_3
 #define AILERON_INPUT_CHANNEL               CHANNEL_1
 #define ELEVATOR_INPUT_CHANNEL              CHANNEL_2
-#define RUDDER_INPUT_CHANNEL                CHANNEL_5
-#define MODE_SWITCH_INPUT_CHANNEL           CHANNEL_4
+#define RUDDER_INPUT_CHANNEL                CHANNEL_UNUSED
+#define MODE_SWITCH_INPUT_CHANNEL           CHANNEL_6
 #define BRAKE_THR_SEL_INPUT_CHANNEL         CHANNEL_UNUSED
 #define BRAKE_INPUT_CHANNEL                 CHANNEL_UNUSED
 #define FLAPS_INPUT_CHANNEL                 CHANNEL_UNUSED
@@ -248,7 +248,7 @@
 // For UDB4/5 boards: Set to 3-8 (or up to 10 using pins RA4 and RA1.)
 // For AUAV3 boards:  Set to 3-8 (or up to 11 using pins RE1, RA6 and RA7.)
 //                               (this needs developing, so contact the list)
-#define NUM_OUTPUTS                         4
+#define NUM_OUTPUTS                         3
 
 // Channel numbers for each output
 // Use as is, or edit to match your setup.
@@ -265,7 +265,7 @@
 #define AILERON_OUTPUT_CHANNEL              CHANNEL_1
 #define AILERON_SECONDARY_OUTPUT_CHANNEL    CHANNEL_UNUSED
 #define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_2
-#define RUDDER_OUTPUT_CHANNEL               CHANNEL_4
+#define RUDDER_OUTPUT_CHANNEL               CHANNEL_UNUSED
 #define AILERON_LEFT_OUTPUT_CHANNEL         CHANNEL_UNUSED
 #define FLAP_LEFT_OUTPUT_CHANNEL            CHANNEL_UNUSED
 #define FLAP_RIGHT_OUTPUT_CHANNEL           CHANNEL_UNUSED
@@ -290,7 +290,7 @@
 // Servo Reversing Configuration
 // For any of these that are set to 1, that servo will be sent reversed controls.
 // Note that your servo reversing settings here should match what you set on your transmitter.
-#define AILERON_CHANNEL_REVERSED            0
+#define AILERON_CHANNEL_REVERSED            1
 #define ELEVATOR_CHANNEL_REVERSED           0
 #define RUDDER_CHANNEL_REVERSED             0
 #define AILERON_SECONDARY_CHANNEL_REVERSED  0
@@ -299,7 +299,7 @@
 #define CAMERA_YAW_CHANNEL_REVERSED         0
 
 // Set this to 1 if you need to switch the left and right elevon or vtail surfaces
-#define ELEVON_VTAIL_SURFACES_REVERSED      0
+#define ELEVON_VTAIL_SURFACES_REVERSED      1
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -307,8 +307,8 @@
 // Often the Flap channel will be controlled by a 3-position switch.
 // These are the thresholds for the cutoffs between low and middle, and between middle and high.
 // Normal signals should fall within about 2000 - 4000.
-#define MODE_SWITCH_THRESHOLD_LOW           2600
-#define MODE_SWITCH_THRESHOLD_HIGH          3400
+#define MODE_SWITCH_THRESHOLD_LOW           2200
+#define MODE_SWITCH_THRESHOLD_HIGH          3800
 
 // Setting MODE_SWITCH_TWO_POSITION to 1,  allows a two state mode switch on the transmitter to be used
 // to create three flight modes. When switch is "Down" the plane always reverts to Manual. When "Up",
@@ -378,7 +378,7 @@
 // Note that SERIAL_MAVLINK defaults to using a baud rate of 57600 baud (other formats default to 19200)
 
 #ifndef SERIAL_OUTPUT_FORMAT
-#define SERIAL_OUTPUT_FORMAT                SERIAL_NONE
+#define SERIAL_OUTPUT_FORMAT                SERIAL_UDB_EXTRA
 #endif
 
 
@@ -416,15 +416,15 @@
 //
 // ANALOG_VOLTAGE2_INPUT_CHANNEL lets you measure Video Tx (or other second) battery voltage
 
-#define ANALOG_CURRENT_INPUT_CHANNEL        CHANNEL_UNUSED
-#define ANALOG_VOLTAGE_INPUT_CHANNEL        CHANNEL_UNUSED
-#define ANALOG_RSSI_INPUT_CHANNEL           CHANNEL_UNUSED
+#define ANALOG_CURRENT_INPUT_CHANNEL        2
+#define ANALOG_VOLTAGE_INPUT_CHANNEL        1
+#define ANALOG_RSSI_INPUT_CHANNEL           3
 #define ANALOG_VOLTAGE2_INPUT_CHANNEL       CHANNEL_UNUSED
 
-#define MAX_CURRENT                         900 // 90.0 Amps max for the sensor from SparkFun (in tenths of Amps)
-#define CURRENT_SENSOR_OFFSET               10  // Add 1.0 Amp to whatever value we sense
+#define MAX_CURRENT                         290 // 90.0 Amps max for the sensor from SparkFun (in tenths of Amps)
+#define CURRENT_SENSOR_OFFSET               0  // Add 1.0 Amp to whatever value we sense
 
-#define MAX_VOLTAGE                         543 // 54.3 Volts max for the sensor from SparkFun (in tenths of Volts)
+#define MAX_VOLTAGE                         186 // 54.3 Volts max for the sensor from SparkFun (in tenths of Volts)
 #define VOLTAGE_SENSOR_OFFSET               0   // Add 0.0 Volts to whatever value we sense
 
 #define MAX_VOLTAGE2                        33  // 3.3 Volts max for direct Analog Input
@@ -522,7 +522,7 @@
 // use it only if there is no rudder.
 // YAWKD_AILERON is the derivative feedback gain for ailerons in response to yaw rotation.
 // use it only if there is no rudder.
-#define ROLLKP                              0.20
+#define ROLLKP                              0.10
 #define ROLLKD                              0.05
 #define YAWKP_AILERON                       0.00
 #define YAWKD_AILERON                       0.00
@@ -531,7 +531,7 @@
 // PITCHGAIN is the pitch stabilization gain, typically around 0.125
 // PITCHKD feedback gain for pitch damping, around 0.0625
 // ELEVATOR_BOOST is the additional gain multiplier for the manually commanded elevator deflection
-#define PITCHGAIN                           0.30
+#define PITCHGAIN                           0.10
 #define PITCHKD                             0.00
 #define ELEVATOR_BOOST                      0.50
 
