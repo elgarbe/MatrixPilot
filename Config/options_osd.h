@@ -28,8 +28,8 @@
 
 // define USE_OSD to one of the types above to enables that system
 #ifndef USE_OSD
-//#define USE_OSD           OSD_NONE
-#define USE_OSD         OSD_NATIVE
+#define USE_OSD           OSD_NONE
+//#define USE_OSD         OSD_NATIVE
 //#define USE_OSD         OSD_REMZIBI
 //#define USE_OSD         OSD_MINIM
 #endif

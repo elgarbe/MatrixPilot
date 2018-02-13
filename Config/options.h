@@ -128,7 +128,7 @@
 // NOTE: even when set to AH_NONE, MatrixPilot will still try to stabilize pitch as long
 // as PITCH_STABILIZATION is set to 1 above, but will not aim for any specific altitude.
 #define ALTITUDEHOLD_STABILIZED             AH_FULL
-#define ALTITUDEHOLD_WAYPOINT               AH_NONE
+#define ALTITUDEHOLD_WAYPOINT               AH_FULL
 
 // Speed Control
 // If you define SPEED_CONTROL to be 1, MatrixPilot will take air speed into account
@@ -705,7 +705,7 @@
 // Use ALT_HOLD_PITCH_HIGH when above HEIGHT_MARGIN of the target height.
 // Pitch values are in degrees.  Negative values pitch the plane down.
 #define ALT_HOLD_PITCH_MIN                 -15.0    // I want low pitch down
-#define ALT_HOLD_PITCH_MAX                  20.0    // I want high pitch up when climbing
+#define ALT_HOLD_PITCH_MAX                  25.0    // I want high pitch up when climbing
 #define ALT_HOLD_PITCH_HIGH                -10.0    // I want lowest pitch down if I excede HIGH Margin
 
 
