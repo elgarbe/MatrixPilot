@@ -127,7 +127,7 @@
 // altitude is determined by the position of the throttle stick on the transmitter.
 // NOTE: even when set to AH_NONE, MatrixPilot will still try to stabilize pitch as long
 // as PITCH_STABILIZATION is set to 1 above, but will not aim for any specific altitude.
-#define ALTITUDEHOLD_STABILIZED             AH_NONE
+#define ALTITUDEHOLD_STABILIZED             AH_FULL
 #define ALTITUDEHOLD_WAYPOINT               AH_NONE
 
 // Speed Control
@@ -167,7 +167,7 @@
 // Otherwise, if set to 0 only the GPS will be used.
 // Barometers such as the BMP180 must be shaded from sunlight or they will return false readings.
 #ifndef USE_BAROMETER_ALTITUDE
-#define USE_BAROMETER_ALTITUDE              0
+#define USE_BAROMETER_ALTITUDE              1
 #endif
 
 // Racing Mode
@@ -523,7 +523,7 @@
 // YAWKD_AILERON is the derivative feedback gain for ailerons in response to yaw rotation.
 // use it only if there is no rudder.
 #define ROLLKP                              0.10
-#define ROLLKD                              0.05
+#define ROLLKD                              0.00
 #define YAWKP_AILERON                       0.00
 #define YAWKD_AILERON                       0.00
 
@@ -531,7 +531,7 @@
 // PITCHGAIN is the pitch stabilization gain, typically around 0.125
 // PITCHKD feedback gain for pitch damping, around 0.0625
 // ELEVATOR_BOOST is the additional gain multiplier for the manually commanded elevator deflection
-#define PITCHGAIN                           0.10
+#define PITCHGAIN                           0.2
 #define PITCHKD                             0.00
 #define ELEVATOR_BOOST                      0.50
 
@@ -683,30 +683,30 @@
 // These settings are only used when Altitude Hold is enabled above.
 
 // Min and Max target heights in meters.  These only apply to stabilized mode.
-#define HEIGHT_TARGET_MIN                   0.0
-#define HEIGHT_TARGET_MAX                   150.0
+#define HEIGHT_TARGET_MIN                   -10.0
+#define HEIGHT_TARGET_MAX                   100.0
 
 // The range of altitude within which to linearly vary the throttle
 // and pitch to maintain altitude.  A bigger value makes altitude hold
 // smoother, and is suggested for very fast planes.
-#define HEIGHT_MARGIN                       20
+#define HEIGHT_MARGIN                       30
 
 // Use ALT_HOLD_THROTTLE_MAX when below HEIGHT_MARGIN of the target height.
 // Interpolate between ALT_HOLD_THROTTLE_MAX and ALT_HOLD_THROTTLE_MIN
 // when within HEIGHT_MARGIN of the target height.
 // Use ALT_HOLD_THROTTLE_MIN when above HEIGHT_MARGIN of the target height.
 // Throttle values are from 0.0 - 1.0.
-#define ALT_HOLD_THROTTLE_MIN               0.25
-#define ALT_HOLD_THROTTLE_MAX               0.75
+#define ALT_HOLD_THROTTLE_MIN               0.1     //I want a little bit of thrust 
+#define ALT_HOLD_THROTTLE_MAX               0.5     //I don't want full thrust to climb
 
 // Use ALT_HOLD_PITCH_MAX when below HEIGHT_MARGIN of the target height.
 // Interpolate between ALT_HOLD_PITCH_MAX and ALT_HOLD_PITCH_MIN when
 // within HEIGHT_MARGIN of the target height.
 // Use ALT_HOLD_PITCH_HIGH when above HEIGHT_MARGIN of the target height.
 // Pitch values are in degrees.  Negative values pitch the plane down.
-#define ALT_HOLD_PITCH_MIN                 -15.0
-#define ALT_HOLD_PITCH_MAX                  15.0
-#define ALT_HOLD_PITCH_HIGH                -15.0
+#define ALT_HOLD_PITCH_MIN                 -15.0    // I want low pitch down
+#define ALT_HOLD_PITCH_MAX                  20.0    // I want high pitch up when climbing
+#define ALT_HOLD_PITCH_HIGH                -10.0    // I want lowest pitch down if I excede HIGH Margin
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -739,7 +739,7 @@
 // The Waypoint definitions and options are located in the flightplan-waypoints.h file.
 // The Logo flight plan definitions and options are located in the flightplan-logo.h file.
 #ifndef FLIGHT_PLAN_TYPE
-#define FLIGHT_PLAN_TYPE                    FP_WAYPOINTS
+#define FLIGHT_PLAN_TYPE                    FP_LOGO
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
