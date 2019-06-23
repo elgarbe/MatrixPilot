@@ -127,7 +127,7 @@
 // altitude is determined by the position of the throttle stick on the transmitter.
 // NOTE: even when set to AH_NONE, MatrixPilot will still try to stabilize pitch as long
 // as PITCH_STABILIZATION is set to 1 above, but will not aim for any specific altitude.
-#define ALTITUDEHOLD_STABILIZED             AH_NONE
+#define ALTITUDEHOLD_STABILIZED             AH_PITCH_ONLY
 #define ALTITUDEHOLD_WAYPOINT               AH_NONE
 
 // Speed Control
@@ -579,9 +579,9 @@
 // in stabilized or waypoint mode.  This mainly helps aileron-initiated turning while in stabilized.
 // MANUAL_AILERON_RUDDER_MIX is no longer needed with the new controls, it should be set to zero.
 // RUDDER_BOOST is the additional gain multiplier for the manually commanded rudder deflection
-#define YAWKP_RUDDER                        0.30
+#define YAWKP_RUDDER                        0.15
 #define YAWKD_RUDDER                        0.00
-#define ROLLKP_RUDDER                       0.30
+#define ROLLKP_RUDDER                       0.15
 #define ROLLKD_RUDDER                       0.00
 #define MANUAL_AILERON_RUDDER_MIX           0.00
 #define RUDDER_BOOST                        0.50
