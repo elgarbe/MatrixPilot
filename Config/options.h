@@ -71,7 +71,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // Set this value to your GPS type.  (Set to GPS_STD, GPS_UBX_2HZ, GPS_UBX_4HZ, GPS_MTEK, GPS_NMEA, or GPS_NONE)
-#define GPS_TYPE                            GPS_STD
+#define GPS_TYPE                            GPS_UBX_4HZ
 //#define DEFAULT_GPS_BAUD                    57600   // added for GPS_NMEA support
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,15 +89,15 @@
 //
 // Roll, Pitch, and Yaw Stabilization
 // Set any of these to 0 to disable the stabilization in that axis.
-#define ROLL_STABILIZATION_AILERONS         1
-#define ROLL_STABILIZATION_RUDDER           0
+#define ROLL_STABILIZATION_AILERONS         0
+#define ROLL_STABILIZATION_RUDDER           1
 #define PITCH_STABILIZATION                 1
 #define YAW_STABILIZATION_RUDDER            1
 #define YAW_STABILIZATION_AILERON           0
 
 // Aileron and Rudder Navigation
 // Set either of these to 1 to enable helical turn control for navigation.
-#define AILERON_NAVIGATION                  1
+#define AILERON_NAVIGATION                  0
 #define RUDDER_NAVIGATION                   1
 
 // Cross track margin, in meters
@@ -127,8 +127,8 @@
 // altitude is determined by the position of the throttle stick on the transmitter.
 // NOTE: even when set to AH_NONE, MatrixPilot will still try to stabilize pitch as long
 // as PITCH_STABILIZATION is set to 1 above, but will not aim for any specific altitude.
-#define ALTITUDEHOLD_STABILIZED             AH_FULL
-#define ALTITUDEHOLD_WAYPOINT               AH_FULL
+#define ALTITUDEHOLD_STABILIZED             AH_NONE
+#define ALTITUDEHOLD_WAYPOINT               AH_NONE
 
 // Speed Control
 // If you define SPEED_CONTROL to be 1, MatrixPilot will take air speed into account
@@ -218,16 +218,16 @@
 // If using PWM inputs (parallel Rx connections), set to the number of cables connected, 1-8
 // If using PPM inputs (serial Rx connection), set to the number of Rx channels, up to PPM_NUMBER_OF_CHANNELS
 // If using LRS library (integrated SPI tranceiver), set to the number of Rx channels, up to 16
-#define NUM_INPUTS                          5
+#define NUM_INPUTS                          4
 
 // Channel numbers for each input.
 // Use as is, or edit to match your setup.
 //   - If you're set up to use Rudder Navigation (like MatrixNav), then you may want to swap
 //     the aileron and rudder channels so that rudder is CHANNEL_1, and aileron is 5.
 #define THROTTLE_INPUT_CHANNEL              CHANNEL_3
-#define AILERON_INPUT_CHANNEL               CHANNEL_1
+#define AILERON_INPUT_CHANNEL               CHANNEL_UNUSED
 #define ELEVATOR_INPUT_CHANNEL              CHANNEL_2
-#define RUDDER_INPUT_CHANNEL                CHANNEL_5
+#define RUDDER_INPUT_CHANNEL                CHANNEL_1
 #define MODE_SWITCH_INPUT_CHANNEL           CHANNEL_4
 #define BRAKE_THR_SEL_INPUT_CHANNEL         CHANNEL_UNUSED
 #define BRAKE_INPUT_CHANNEL                 CHANNEL_UNUSED
@@ -248,7 +248,7 @@
 // For UDB4/5 boards: Set to 3-8 (or up to 10 using pins RA4 and RA1.)
 // For AUAV3 boards:  Set to 3-8 (or up to 11 using pins RE1, RA6 and RA7.)
 //                               (this needs developing, so contact the list)
-#define NUM_OUTPUTS                         4
+#define NUM_OUTPUTS                         3
 
 // Channel numbers for each output
 // Use as is, or edit to match your setup.
@@ -262,10 +262,10 @@
 // sure your board gets power.
 //
 #define THROTTLE_OUTPUT_CHANNEL             CHANNEL_3
-#define AILERON_OUTPUT_CHANNEL              CHANNEL_1
+#define AILERON_OUTPUT_CHANNEL              CHANNEL_UNUSED
 #define AILERON_SECONDARY_OUTPUT_CHANNEL    CHANNEL_UNUSED
 #define ELEVATOR_OUTPUT_CHANNEL             CHANNEL_2
-#define RUDDER_OUTPUT_CHANNEL               CHANNEL_4
+#define RUDDER_OUTPUT_CHANNEL               CHANNEL_1
 #define AILERON_LEFT_OUTPUT_CHANNEL         CHANNEL_UNUSED
 #define FLAP_LEFT_OUTPUT_CHANNEL            CHANNEL_UNUSED
 #define FLAP_RIGHT_OUTPUT_CHANNEL           CHANNEL_UNUSED
@@ -307,8 +307,8 @@
 // Often the Flap channel will be controlled by a 3-position switch.
 // These are the thresholds for the cutoffs between low and middle, and between middle and high.
 // Normal signals should fall within about 2000 - 4000.
-#define MODE_SWITCH_THRESHOLD_LOW           2600
-#define MODE_SWITCH_THRESHOLD_HIGH          3400
+#define MODE_SWITCH_THRESHOLD_LOW           3000
+#define MODE_SWITCH_THRESHOLD_HIGH          4500
 
 // Setting MODE_SWITCH_TWO_POSITION to 1,  allows a two state mode switch on the transmitter to be used
 // to create three flight modes. When switch is "Down" the plane always reverts to Manual. When "Up",
@@ -378,7 +378,7 @@
 // Note that SERIAL_MAVLINK defaults to using a baud rate of 57600 baud (other formats default to 19200)
 
 #ifndef SERIAL_OUTPUT_FORMAT
-#define SERIAL_OUTPUT_FORMAT                SERIAL_NONE
+#define SERIAL_OUTPUT_FORMAT                SERIAL_UDB_EXTRA
 #endif
 
 
@@ -581,7 +581,7 @@
 // RUDDER_BOOST is the additional gain multiplier for the manually commanded rudder deflection
 #define YAWKP_RUDDER                        0.30
 #define YAWKD_RUDDER                        0.00
-#define ROLLKP_RUDDER                       0.00
+#define ROLLKP_RUDDER                       0.30
 #define ROLLKD_RUDDER                       0.00
 #define MANUAL_AILERON_RUDDER_MIX           0.00
 #define RUDDER_BOOST                        0.50
