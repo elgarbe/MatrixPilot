@@ -72,7 +72,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Set this value to your GPS type.  (Set to GPS_STD, GPS_UBX_2HZ, GPS_UBX_4HZ, GPS_MTEK, GPS_NMEA, or GPS_NONE)
 #define GPS_TYPE                            GPS_UBX_4HZ
-//#define DEFAULT_GPS_BAUD                    57600   // added for GPS_NMEA support
+//#define DEFAULT_GPS_BAUD                    9600   // added for GPS_NMEA support
 
 ////////////////////////////////////////////////////////////////////////////////
 // You can specify a level of good GNSS reception before MatrixPilot accepts "GPS ACQUIRED".
@@ -127,8 +127,8 @@
 // altitude is determined by the position of the throttle stick on the transmitter.
 // NOTE: even when set to AH_NONE, MatrixPilot will still try to stabilize pitch as long
 // as PITCH_STABILIZATION is set to 1 above, but will not aim for any specific altitude.
-#define ALTITUDEHOLD_STABILIZED             AH_FULL
-#define ALTITUDEHOLD_WAYPOINT               AH_FULL
+#define ALTITUDEHOLD_STABILIZED             AH_PITCH_ONLY
+#define ALTITUDEHOLD_WAYPOINT               AH_PITCH_ONLY
 
 // Speed Control
 // If you define SPEED_CONTROL to be 1, MatrixPilot will take air speed into account
@@ -167,7 +167,7 @@
 // Otherwise, if set to 0 only the GPS will be used.
 // Barometers such as the BMP180 must be shaded from sunlight or they will return false readings.
 #ifndef USE_BAROMETER_ALTITUDE
-#define USE_BAROMETER_ALTITUDE              1
+#define USE_BAROMETER_ALTITUDE              0
 #endif
 
 // Racing Mode
@@ -385,7 +385,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Serial Output BAUD rate for either standard telemetry streams or MAVLink
 //  19200, 38400, 57600, 115200, 230400, 460800, 921600 // yes, it really will work at this rate
-#define SERIAL_BAUDRATE                     57600
+#define SERIAL_BAUDRATE                     115200
 
 
 // NUM_ANALOG_INPUTS:
@@ -416,9 +416,9 @@
 //
 // ANALOG_VOLTAGE2_INPUT_CHANNEL lets you measure Video Tx (or other second) battery voltage
 
-#define ANALOG_CURRENT_INPUT_CHANNEL        2
-#define ANALOG_VOLTAGE_INPUT_CHANNEL        1
-#define ANALOG_RSSI_INPUT_CHANNEL           3
+#define ANALOG_CURRENT_INPUT_CHANNEL        CHANNEL_UNUSED
+#define ANALOG_VOLTAGE_INPUT_CHANNEL        CHANNEL_UNUSED
+#define ANALOG_RSSI_INPUT_CHANNEL           CHANNEL_UNUSED
 #define ANALOG_VOLTAGE2_INPUT_CHANNEL       CHANNEL_UNUSED
 
 #define MAX_CURRENT                         290 // 90.0 Amps max for the sensor from SparkFun (in tenths of Amps)
